@@ -1,0 +1,22 @@
+{% extends "principal.html" %}
+{% block title %}Sistema PQRS{% endblock %}
+{% block content %}
+<div class="modulo-card">
+  <h5 class="fw-bold text-success mb-3">💬 Sistema PQRS — Peticiones, Quejas y Reclamos</h5>
+  <form method="POST" class="row g-2 mb-4">
+    <div class="col-md-3">
+      <select name="tipo" class="form-select"><option>Petición</option><option>Queja</option><option>Reclamo</option></select>
+    </div>
+    <div class="col-md-7"><input type="text" name="asunto" class="form-control" placeholder="Describe tu solicitud o daño..." required></div>
+    <div class="col-md-2"><button type="submit" class="btn btn-verde w-100">+ Radicar</button></div>
+  </form>
+  <table class="table">
+    <thead><tr><th>Código</th><th>Tipo</th><th>Asunto</th><th>Estado</th></tr></thead>
+    <tbody>
+      {% for p in pqrs %}
+      <tr><td class="fw-bold">{{ p.codigo }}</td><td>{{ p.tipo }}</td><td>{{ p.asunto }}</td><td><span class="badge bg-info text-dark">{{ p.estado }}</span></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

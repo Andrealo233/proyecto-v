@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeredalApp - {% block title %}Inicio{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+
+  <header class="topbar-veredal py-2 px-4">
+    <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo VeredalApp" class="logo-grande">
+        <div>
+          <h4 class="mb-0 fw-bold text-success">VeredalApp</h4>
+          <small class="text-muted">Gestión del agua veredal y organizaciones comunitarias · Antioquia</small>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill">
+          👤 {{ session.get('usuario', 'Ana Torres · Administradora') }}
+        </span>
+        <a href="/login" class="btn btn-outline-success btn-sm rounded-pill">🔑 Acceso</a>
+        <a href="/logout" class="btn btn-danger btn-sm rounded-pill">🚪 Salir</a>
+      </div>
+    </div>
+  </header>
+
+  <nav class="nav-veredal px-4 py-2 sticky-top shadow-sm">
+    <div class="container-fluid">
+      <ul class="nav flex-wrap gap-2">
+        <li class="nav-item"><a class="nav-link {% if request.path in ['/', '/dashboard'] %}active{% endif %}" href="/dashboard">📊 Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link {% if request.path == '/productos' %}active{% endif %}" href="/productos">👥 Asociados / Productos</a></li>
+        <li class="nav-item"><a class="nav-link {% if request.path == '/agua' %}active{% endif %}" href="/agua">💧 Gestión del Agua</a></li>
+        <li class="nav-item"><a class="nav-link {% if request.path == '/facturacion' %}active{% endif %}" href="/facturacion">🧾 Facturación y Pagos</a></li>
+        <li class="nav-item"><a class="nav-link {% if request.path == '/pqrs' %}active{% endif %}" href="/pqrs">💬 Sistema PQRS</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container-fluid px-4 py-4">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/chart.umd.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/sweetalert2.all.min.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

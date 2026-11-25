@@ -1,0 +1,24 @@
+{% extends "principal.html" %}
+{% block title %}Gestión del Agua y Lecturas{% endblock %}
+{% block content %}
+<div class="modulo-card">
+  <h5 class="fw-bold text-success mb-3">💧 Registro de Lecturas de Consumo</h5>
+  <form method="POST" class="row g-3 mb-4">
+    <div class="col-md-4">
+      <label class="form-label small fw-bold">Servicio / Medidor</label>
+      <select name="servicio" class="form-select"><option>AV-001 · Juan Pérez (M-101)</option><option>AV-002 · María López (M-102)</option></select>
+    </div>
+    <div class="col-md-3"><label class="form-label small fw-bold">Lectura Anterior</label><input type="number" name="lectura_anterior" value="1200" class="form-control" required></div>
+    <div class="col-md-3"><label class="form-label small fw-bold">Lectura Actual</label><input type="number" name="lectura_actual" value="1220" class="form-control" required></div>
+    <div class="col-md-2 d-flex align-items-end"><button type="submit" class="btn btn-verde w-100">💾 Guardar</button></div>
+  </form>
+  <table class="table table-sm">
+    <thead><tr><th>Servicio</th><th>Anterior</th><th>Actual</th><th>Consumo</th><th>Fecha</th></tr></thead>
+    <tbody>
+      {% for l in lecturas %}
+      <tr><td>{{ l.servicio }}</td><td>{{ l.lectura_anterior }}</td><td>{{ l.lectura_actual }}</td><td class="fw-bold text-success">{{ l.consumo }} m³</td><td>{{ l.fecha }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

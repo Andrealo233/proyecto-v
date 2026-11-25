@@ -1,0 +1,75 @@
+:root {
+    --verde-oscuro: #146c38;
+    --verde-medio: #1b8245;
+    --borde-tarjeta: #dce7e0;
+  }
+  
+  body {
+    background: linear-gradient(rgba(241, 246, 243, 0.88), rgba(230, 244, 236, 0.92)),
+                url('../img/fondo.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+  
+  .topbar-veredal {
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom: 1px solid var(--borde-tarjeta);
+  }
+  
+  .logo-grande {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(20, 108, 56, 0.15);
+  }
+  
+  .nav-veredal {
+    background: linear-gradient(90deg, var(--verde-oscuro) 0%, var(--verde-medio) 100%);
+  }
+  
+  .nav-veredal .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-weight: 500;
+  }
+  
+  .nav-veredal .nav-link:hover,
+  .nav-veredal .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.25);
+    color: #ffffff !important;
+    font-weight: 600;
+  }
+  
+  .modulo-card {
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--borde-tarjeta);
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(20, 108, 56, 0.06);
+    padding: 22px;
+  }
+  
+  .btn-verde {
+    background-color: var(--verde-oscuro);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  
+  .btn-verde:hover {
+    background-color: var(--verde-medio);
+    color: #fff;
+  }
+  
+  .img-pago-servicios {
+    max-height: 260px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 2px solid #bbf7d0;
+  }
+  
