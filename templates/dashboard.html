@@ -4,10 +4,10 @@
 <div class="modulo-card">
   <h5 class="fw-bold text-success mb-3">📊 Dashboard Principal — Resumen Comunitario</h5>
   <div class="row g-3 mb-4 text-center">
-    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff"><small>USUARIOS</small><h4 class="fw-bold mb-0">1.254</h4></div></div>
-    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#8b5cf6,#a855f7);color:#fff"><small>SERVICIOS ACTIVOS</small><h4 class="fw-bold mb-0">412</h4></div></div>
-    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff"><small>RECAUDO JULIO</small><h4 class="fw-bold mb-0">$12.5M</h4></div></div>
-    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#ec4899,#f43f5e);color:#fff"><small>PQRS PENDIENTES</small><h4 class="fw-bold mb-0">18</h4></div></div>
+    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#93c5fd,#a5b4fc);color:#1e3a8a"><small>USUARIOS</small><h4 class="fw-bold mb-0">1.254</h4></div></div>
+    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#c4b5fd,#d8b4fe);color:#581c87"><small>SERVICIOS ACTIVOS</small><h4 class="fw-bold mb-0">412</h4></div></div>
+    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#fcd34d,#fdba74);color:#7c2d12"><small>RECAUDO JULIO</small><h4 class="fw-bold mb-0">$12.5M</h4></div></div>
+    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#f9a8d4,#fda4af);color:#831843"><small>PQRS PENDIENTES</small><h4 class="fw-bold mb-0">18</h4></div></div>
   </div>
   <div class="row g-4">
     <div class="col-md-7"><canvas id="graficaVentasInstalacion" height="130"></canvas></div>
@@ -19,11 +19,11 @@
 <script>
   new Chart(document.getElementById('graficaVentasInstalacion'), {
     type: 'bar',
-    data: { labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'], datasets: [{ label: 'Ventas de instalación', data: [850, 920, 780, 1100, 950, 1020, 1150], backgroundColor: ['#3b82f6','#6366f1','#8b5cf6','#a855f7','#f59e0b','#f97316','#ec4899'], borderRadius: 6 }] }
+    data: { labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'], datasets: [{ label: 'Ventas de instalación', data: [850, 920, 780, 1100, 950, 1020, 1150], backgroundColor: ['#93c5fd','#a5b4fc','#c4b5fd','#d8b4fe','#fcd34d','#fdba74','#f9a8d4'], borderRadius: 6 }] }
   });
   new Chart(document.getElementById('graficaServicios'), {
     type: 'doughnut',
-    data: { labels: ['Activos', 'Suspendidos', 'Revisión'], datasets: [{ data: [380, 25, 7], backgroundColor: ['#3b82f6', '#f59e0b', '#ec4899'] }] }
+    data: { labels: ['Activos', 'Suspendidos', 'Revisión'], datasets: [{ data: [380, 25, 7], backgroundColor: ['#93c5fd', '#fcd34d', '#f9a8d4'] }] }
   });
 </script>
 {% endblock %}
