@@ -51,7 +51,11 @@ body {
 }
 
 .topbar-veredal {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 253, 249, 0.95) 100%);
+    background-image: url('../img/fondo 2.PNG');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
     backdrop-filter: blur(12px);
     border-bottom: 2px solid var(--borde-tarjeta);
     box-shadow: 0 2px 20px rgba(20, 108, 56, 0.06);
@@ -114,7 +118,11 @@ body {
 }
 
 .modulo-card {
-    background: var(--gradiente-tarjeta);
+    background-image: url('../img/fondo 1.PNG');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
     backdrop-filter: blur(16px);
     border: 2px solid var(--borde-tarjeta);
     border-radius: 18px;
