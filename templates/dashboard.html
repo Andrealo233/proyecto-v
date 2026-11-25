@@ -4,10 +4,10 @@
 <div class="modulo-card">
   <h5 class="fw-bold text-success mb-3">📊 Dashboard Principal — Resumen Comunitario</h5>
   <div class="row g-3 mb-4 text-center">
-    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#60a5fa,#818cf8);color:#fff"><small>USUARIOS</small><h4 class="fw-bold mb-0">1.254</h4></div></div>
-    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#a78bfa,#c084fc);color:#fff"><small>SERVICIOS ACTIVOS</small><h4 class="fw-bold mb-0">412</h4></div></div>
-    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#fbbf24,#fb923c);color:#fff"><small>RECAUDO JULIO</small><h4 class="fw-bold mb-0">$12.5M</h4></div></div>
-    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#f472b6,#fb7185);color:#fff"><small>PQRS PENDIENTES</small><h4 class="fw-bold mb-0">18</h4></div></div>
+    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff"><small>USUARIOS</small><h4 class="fw-bold mb-0">1.254</h4></div></div>
+    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff"><small>SERVICIOS ACTIVOS</small><h4 class="fw-bold mb-0">412</h4></div></div>
+    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#d97706,#ea580c);color:#fff"><small>RECAUDO JULIO</small><h4 class="fw-bold mb-0">$12.5M</h4></div></div>
+    <div class="col-md-3"><div class="p-3 border rounded-3" style="background:linear-gradient(135deg,#db2777,#e11d48);color:#fff"><small>PQRS PENDIENTES</small><h4 class="fw-bold mb-0">18</h4></div></div>
   </div>
   <div class="row g-4">
     <div class="col-md-7"><canvas id="graficaVentasInstalacion" height="130"></canvas></div>
@@ -19,7 +19,7 @@
 <script>
   const ctx1 = document.getElementById('graficaVentasInstalacion');
   const g1 = ctx1.getContext('2d');
-  const colors1 = ['#60a5fa','#818cf8','#a78bfa','#c084fc','#fbbf24','#fb923c','#f472b6'];
+  const colors1 = ['#2563eb','#4f46e5','#7c3aed','#9333ea','#d97706','#ea580c','#db2777'];
   const grads1 = colors1.map(c => {
     const gr = g1.createLinearGradient(0,0,0,ctx1.height);
     gr.addColorStop(0, c);
@@ -32,7 +32,7 @@
   });
   const ctx2 = document.getElementById('graficaServicios');
   const g2 = ctx2.getContext('2d');
-  const colors2 = ['#60a5fa', '#fbbf24', '#f472b6'];
+  const colors2 = ['#2563eb', '#d97706', '#db2777'];
   const grads2 = colors2.map(c => {
     const gr = g2.createRadialGradient(ctx2.width/2, ctx2.height/2, 0, ctx2.width/2, ctx2.height/2, ctx2.width/2);
     gr.addColorStop(0, c);
