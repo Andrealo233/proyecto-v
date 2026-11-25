@@ -19,7 +19,7 @@
 <script>
   const ctx1 = document.getElementById('graficaVentasInstalacion');
   const g1 = ctx1.getContext('2d');
-  const colors1 = ['#2563eb','#4f46e5','#7c3aed','#9333ea','#d97706','#ea580c','#db2777'];
+  const colors1 = ['#1d4ed8','#3730a3','#5b21b6','#6b21a8','#b45309','#c2410c','#9f1239'];
   const grads1 = colors1.map(c => {
     const gr = g1.createLinearGradient(0,0,0,ctx1.height);
     gr.addColorStop(0, c);
@@ -32,7 +32,7 @@
   });
   const ctx2 = document.getElementById('graficaServicios');
   const g2 = ctx2.getContext('2d');
-  const colors2 = ['#2563eb', '#d97706', '#db2777'];
+  const colors2 = ['#1d4ed8', '#b45309', '#9f1239'];
   const grads2 = colors2.map(c => {
     const gr = g2.createRadialGradient(ctx2.width/2, ctx2.height/2, 0, ctx2.width/2, ctx2.height/2, ctx2.width/2);
     gr.addColorStop(0, c);
