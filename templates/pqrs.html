@@ -14,7 +14,7 @@
     <thead><tr><th>Código</th><th>Tipo</th><th>Asunto</th><th>Estado</th></tr></thead>
     <tbody>
       {% for p in pqrs %}
-      <tr><td class="fw-bold">{{ p.codigo }}</td><td>{{ p.tipo }}</td><td>{{ p.asunto }}</td><td><span class="badge bg-info text-dark">{{ p.estado }}</span></td></tr>
+      <tr><td class="fw-bold">{{ p.codigo }}</td><td>{{ p.tipo }}</td><td>{{ p.asunto }}</td><td><span class="badge {% if p.estado == 'En proceso' %}bg-warning{% elif p.estado == 'Resuelto' %}bg-success{% else %}bg-info{% endif %}">{{ p.estado }}</span></td></tr>
       {% endfor %}
     </tbody>
   </table>
