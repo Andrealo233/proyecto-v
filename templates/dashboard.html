@@ -17,13 +17,31 @@
 {% endblock %}
 {% block scripts %}
 <script>
-  new Chart(document.getElementById('graficaVentasInstalacion'), {
-    type: 'bar',
-    data: { labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'], datasets: [{ label: 'Ventas de instalación', data: [850, 920, 780, 1100, 950, 1020, 1150], backgroundColor: ['#60a5fa','#818cf8','#a78bfa','#c084fc','#fbbf24','#fb923c','#f472b6'], borderRadius: 6 }] }
+  const ctx1 = document.getElementById('graficaVentasInstalacion');
+  const g1 = ctx1.getContext('2d');
+  const colors1 = ['#60a5fa','#818cf8','#a78bfa','#c084fc','#fbbf24','#fb923c','#f472b6'];
+  const grads1 = colors1.map(c => {
+    const gr = g1.createLinearGradient(0,0,0,ctx1.height);
+    gr.addColorStop(0, c);
+    gr.addColorStop(1, c + '55');
+    return gr;
   });
-  new Chart(document.getElementById('graficaServicios'), {
+  new Chart(ctx1, {
+    type: 'bar',
+    data: { labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'], datasets: [{ label: 'Ventas de instalación', data: [850, 920, 780, 1100, 950, 1020, 1150], backgroundColor: grads1, borderRadius: 6 }] }
+  });
+  const ctx2 = document.getElementById('graficaServicios');
+  const g2 = ctx2.getContext('2d');
+  const colors2 = ['#60a5fa', '#fbbf24', '#f472b6'];
+  const grads2 = colors2.map(c => {
+    const gr = g2.createRadialGradient(ctx2.width/2, ctx2.height/2, 0, ctx2.width/2, ctx2.height/2, ctx2.width/2);
+    gr.addColorStop(0, c);
+    gr.addColorStop(1, c + '66');
+    return gr;
+  });
+  new Chart(ctx2, {
     type: 'doughnut',
-    data: { labels: ['Activos', 'Suspendidos', 'Revisión'], datasets: [{ data: [380, 25, 7], backgroundColor: ['#60a5fa', '#fbbf24', '#f472b6'] }] }
+    data: { labels: ['Activos', 'Suspendidos', 'Revisión'], datasets: [{ data: [380, 25, 7], backgroundColor: grads2 }] }
   });
 </script>
 {% endblock %}
