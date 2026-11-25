@@ -1,17 +1,34 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import mysql.connector
+from mysql.connector import Error
 
 # Si tu carpeta de páginas se llama 'templates', cambia template_folder='templates'
-app = Flask(__name__, template_folder='html', static_folder='static')
+app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = 'clave_secreta_veredal_antioquia'
 
+DB_AVAILABLE = False
+
 def get_db():
-    return mysql.connector.connect(
-        host='localhost',
-        user='root',
-        password='',          # Coloca tu contraseña de MySQL si tienes una
-        database='veredal_db'
-    )
+    global DB_AVAILABLE
+    try:
+        conn = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='',          # Coloca tu contraseña de MySQL si tienes una
+            database='veredal_db'
+        )
+        DB_AVAILABLE = True
+        return conn
+    except Error as e:
+        DB_AVAILABLE = False
+        print(f"Database connection failed: {e}")
+        return None
+
+def get_db_or_fallback():
+    db = get_db()
+    if db is None:
+        flash('Base de datos no disponible. Funcionando en modo demostración.', 'warning')
+    return db
 
 @app.route('/')
 @app.route('/dashboard')
@@ -20,7 +37,17 @@ def dashboard():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    db = get_db()
+    db = get_db_or_fallback()
+    if db is None:
+        recientes = [
+            {'nombre': 'Juan Pérez', 'documento': '1.234.567.890'},
+            {'nombre': 'María López', 'documento': '1.098.765.432'},
+        ]
+        if request.method == 'POST':
+            session['usuario'] = request.form['usuario']
+            return redirect(url_for('dashboard'))
+        return render_template('secion.html', recientes=recientes)
+
     cursor = db.cursor(dictionary=True)
     if request.method == 'POST':
         usuario = request.form['usuario']
@@ -38,7 +65,7 @@ def login():
     recientes = cursor.fetchall()
     cursor.close()
     db.close()
-    return render_template('login.html', recientes=recientes)
+    return render_template('secion.html', recientes=recientes)
 
 @app.route('/registro', methods=['POST'])
 def registro():
@@ -47,7 +74,12 @@ def registro():
     telefono = request.form['telefono']
     clave = request.form['clave']
 
-    db = get_db()
+    db = get_db_or_fallback()
+    if db is None:
+        session['usuario'] = nombre
+        flash('Registro exitoso (modo demo)', 'success')
+        return redirect(url_for('dashboard'))
+
     cursor = db.cursor(dictionary=True)
     cursor.execute("SELECT * FROM usuarios WHERE documento=%s OR nombre=%s", (documento, nombre))
     existente = cursor.fetchone()
@@ -75,7 +107,16 @@ def logout():
 
 @app.route('/productos', methods=['GET', 'POST'])
 def productos():
-    db = get_db()
+    db = get_db_or_fallback()
+    if db is None:
+        lista = [
+            {'id': 1, 'nombre': 'Juan Pérez', 'documento': '1.234.567.890', 'telefono': '310 456 7890', 'estado': 'Activo'},
+            {'id': 2, 'nombre': 'María López', 'documento': '1.098.765.432', 'telefono': '320 111 2233', 'estado': 'Activo'},
+        ]
+        if request.method == 'POST':
+            flash('Asociado agregado (modo demo)', 'success')
+        return render_template('productos.html', asociados=lista)
+
     cursor = db.cursor(dictionary=True)
     if request.method == 'POST':
         nombre = request.form['nombre']
@@ -92,7 +133,16 @@ def productos():
 
 @app.route('/agua', methods=['GET', 'POST'])
 def agua():
-    db = get_db()
+    db = get_db_or_fallback()
+    if db is None:
+        lecturas = [
+            {'servicio': 'AV-001 · Juan Pérez (M-101)', 'lectura_anterior': 1200, 'lectura_actual': 1220, 'consumo': 20, 'fecha': '2025-07-15 10:30:00'},
+            {'servicio': 'AV-002 · María López (M-102)', 'lectura_anterior': 850, 'lectura_actual': 875, 'consumo': 25, 'fecha': '2025-07-14 09:15:00'},
+        ]
+        if request.method == 'POST':
+            flash('Lectura registrada (modo demo)', 'success')
+        return render_template('agua2.html', lecturas=lecturas)
+
     cursor = db.cursor(dictionary=True)
     if request.method == 'POST':
         servicio = request.form['servicio']
@@ -110,7 +160,16 @@ def agua():
 
 @app.route('/facturacion', methods=['GET', 'POST'])
 def facturacion():
-    db = get_db()
+    db = get_db_or_fallback()
+    if db is None:
+        facturas = [
+            {'id': 1, 'numero': 'FV-2025-001', 'asociado': 'Juan Pérez', 'valor': 55000, 'estado': 'Pagada'},
+            {'id': 2, 'numero': 'FV-2025-002', 'asociado': 'María López', 'valor': 48000, 'estado': 'Pendiente'},
+        ]
+        if request.method == 'POST':
+            flash('Pago registrado (modo demo)', 'success')
+        return render_template('facturacion.html', facturas=facturas)
+
     cursor = db.cursor(dictionary=True)
     if request.method == 'POST':
         id_factura = request.form['id_factura']
@@ -124,7 +183,17 @@ def facturacion():
 
 @app.route('/pqrs', methods=['GET', 'POST'])
 def pqrs():
-    db = get_db()
+    db = get_db_or_fallback()
+    if db is None:
+        lista_pqrs = [
+            {'codigo': 'P-001', 'tipo': 'Petición', 'asunto': 'Solicitud de nueva conexión', 'estado': 'En proceso'},
+            {'codigo': 'P-002', 'tipo': 'Queja', 'asunto': 'Agua con mal olor', 'estado': 'Resuelto'},
+            {'codigo': 'P-003', 'tipo': 'Reclamo', 'asunto': 'Factura incorrecta', 'estado': 'En proceso'},
+        ]
+        if request.method == 'POST':
+            flash('PQRS radicado (modo demo)', 'success')
+        return render_template('pqrs.html', pqrs=lista_pqrs)
+
     cursor = db.cursor(dictionary=True)
     if request.method == 'POST':
         tipo = request.form['tipo']
