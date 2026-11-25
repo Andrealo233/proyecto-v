@@ -6,7 +6,7 @@
   
   body {
     background: linear-gradient(rgba(241, 246, 243, 0.88), rgba(230, 244, 236, 0.92)),
-                url('../img/fondo.jpg') no-repeat center center fixed;
+                url('../img/fondo.jpeg') no-repeat center center fixed;
     background-size: cover;
     font-family: 'Segoe UI', system-ui, sans-serif;
     min-height: 100vh;

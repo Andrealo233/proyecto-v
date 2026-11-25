@@ -46,7 +46,7 @@ def login():
         if request.method == 'POST':
             session['usuario'] = request.form['usuario']
             return redirect(url_for('dashboard'))
-        return render_template('secion.html', recientes=recientes)
+        return render_template('acceso.html', recientes=recientes)
 
     cursor = db.cursor(dictionary=True)
     if request.method == 'POST':
@@ -65,7 +65,7 @@ def login():
     recientes = cursor.fetchall()
     cursor.close()
     db.close()
-    return render_template('secion.html', recientes=recientes)
+    return render_template('acceso.html', recientes=recientes)
 
 @app.route('/registro', methods=['POST'])
 def registro():
