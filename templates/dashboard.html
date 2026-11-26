@@ -36,29 +36,32 @@
 
   <!-- Charts & Activity Row -->
   <div class="dashboard-row">
-    <!-- Left: Radial Chart (60%) -->
+    <!-- Left: Bar Chart (60%) -->
     <div class="chart-section">
       <div class="chart-card">
         <h5 class="section-title">Ventas de instalaci&#243;n</h5>
         <div class="chart-wrapper">
           <canvas id="graficaVentasInstalacion"></canvas>
         </div>
-        <div class="chart-legend-wrapper">
-          <div class="legend-item">
-            <span class="legend-color" style="background: linear-gradient(135deg, #24A86B, #52D196);"></span>
-            <span class="legend-label">Instalados</span>
-            <span class="legend-value">850</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-color" style="background: linear-gradient(135deg, #26A3C4, #5CE1E6);"></span>
-            <span class="legend-label">En proceso</span>
-            <span class="legend-value">320</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-color" style="background: linear-gradient(135deg, #E86B58, #F4A261);"></span>
-            <span class="legend-label">Cancelados</span>
-            <span class="legend-value">120</span>
-          </div>
+        <div class="chart-table-wrapper">
+          <table class="chart-table">
+            <thead>
+              <tr>
+                <th>Mes</th>
+                <th>Ventas</th>
+                <th>Variaci&#243;n</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Ene</td><td>850</td><td class="text-success">+12%</td></tr>
+              <tr><td>Feb</td><td>920</td><td class="text-success">+8%</td></tr>
+              <tr><td>Mar</td><td>780</td><td class="text-danger">-15%</td></tr>
+              <tr><td>Abr</td><td>1.100</td><td class="text-success">+41%</td></tr>
+              <tr><td>May</td><td>950</td><td class="text-danger">-14%</td></tr>
+              <tr><td>Jun</td><td>1.020</td><td class="text-success">+7%</td></tr>
+              <tr><td>Jul</td><td>1.150</td><td class="text-success">+13%</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -113,129 +116,44 @@
 <script>
   const ctx1 = document.getElementById('graficaVentasInstalacion');
   const g1 = ctx1.getContext('2d');
-
-  const ringData = {
-    labels: ['Instalados', 'En proceso', 'Cancelados'],
-    datasets: [{
-      data: [850, 320, 120],
-      backgroundColor: [
-        createRingGradient(g1, '#24A86B', '#52D196'),
-        createRingGradient(g1, '#26A3C4', '#5CE1E6'),
-        createRingGradient(g1, '#E86B58', '#F4A261')
-      ],
-      borderWidth: 0,
-      spacing: 8,
-      borderRadius: 12,
-      circumference: 300,
-      rotation: -150,
-      offset: 0,
-      weight: 0.6
-    }]
-  };
-
-  function createRingGradient(ctx, colorStart, colorEnd) {
-    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 150);
-    gradient.addColorStop(0, colorStart);
-    gradient.addColorStop(0.5, colorEnd);
-    gradient.addColorStop(1, colorStart + '33');
-    return gradient;
-  }
-
-  const plugins = {
-    tooltip: {
-      backgroundColor: 'rgba(16, 42, 33, 0.92)',
-      titleColor: '#F5F2E8',
-      bodyColor: '#B7EBD6',
-      padding: 12,
-      cornerRadius: 10,
-      displayColors: true,
-      callbacks: {
-        label: function(context) {
-          const total = context.dataset.data.reduce((a, b) => a + b, 0);
-          const percentage = ((context.raw / total) * 100).toFixed(1);
-          return `${context.label}: ${context.raw} (${percentage}%)`;
-        },
-        title: function() {
-          return '';
-        }
-      }
+  const colors1 = ['#1E88A8', '#1B7A43', '#269B63', '#135E3D', '#1E88A8', '#1B7A43', '#269B63'];
+  const grads1 = colors1.map(c => {
+    const gr = g1.createLinearGradient(0, 0, 0, 280);
+    gr.addColorStop(0, c);
+    gr.addColorStop(1, c + '55');
+    return gr;
+  });
+  new Chart(ctx1, {
+    type: 'bar',
+    data: { 
+      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'], 
+      datasets: [{ 
+        label: 'Ventas de instalaci&#243;n', 
+        data: [850, 920, 780, 1100, 950, 1020, 1150], 
+        backgroundColor: grads1, 
+        borderRadius: 8,
+        borderWidth: 0,
+        borderSkipped: false
+      }] 
     },
-    legend: {
-      display: true,
-      position: 'bottom',
-      labels: {
-        color: '#102A21',
-        font: { size: 12, weight: '500' },
-        padding: 16,
-        usePointStyle: true,
-        pointStyle: 'circle'
-      }
-    },
-    datalabels: {
-      display: false
-    }
-  };
-
-  const chart = new Chart(ctx1, {
-    type: 'doughnut',
-    data: ringData,
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      cutout: '55%',
-      circumference: 300,
-      rotation: -150,
-      animation: {
-        animateRotate: true,
-        animateScale: true,
-        duration: 1200,
-        easing: 'easeOutQuart'
+      plugins: { 
+        legend: { display: false } 
       },
-      plugins: plugins,
-      elements: {
-        arc: {
-          borderWidth: 0,
-          borderRadius: 12,
-          shadowColor: 'rgba(15, 61, 46, 0.25)',
-          shadowBlur: 20,
-          shadowOffsetX: 0,
-          shadowOffsetY: 8
+      scales: {
+        y: { 
+          beginAtZero: true, 
+          grid: { color: 'rgba(16, 42, 33, 0.06)' },
+          ticks: { color: '#102A21', font: { size: 11 } }
+        },
+        x: { 
+          grid: { display: false },
+          ticks: { color: '#102A21', font: { size: 11 } }
         }
-      },
-      layout: {
-        padding: 20
       }
-    },
-    plugins: [{
-      id: 'centerText',
-      beforeDraw: function(chart) {
-        const ctx = chart.ctx;
-        const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-        const width = chart.width;
-        const height = chart.height;
-        const fontSize = Math.min(width, height) / 7;
-        
-        ctx.save();
-        ctx.font = `700 ${fontSize}px 'Segoe UI', sans-serif`;
-        ctx.fillStyle = '#102A21';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
-        const centerX = width / 2;
-        const centerY = height / 2 + 10;
-        
-        ctx.shadowColor = 'rgba(255, 255, 255, 0.4)';
-        ctx.shadowBlur = 4;
-        ctx.shadowOffsetY = 1;
-        
-        ctx.fillText(total.toLocaleString(), centerX, centerY - 8);
-        
-        ctx.font = `500 ${fontSize * 0.35}px 'Segoe UI', sans-serif`;
-        ctx.fillStyle = '#166534';
-        ctx.fillText('Total Instalaciones', centerX, centerY + fontSize * 0.5);
-        ctx.restore();
-      }
-    }]
+    }
   });
 </script>
 {% endblock %}
