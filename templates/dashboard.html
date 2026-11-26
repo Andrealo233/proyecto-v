@@ -110,6 +110,35 @@
       </div>
     </div>
   </div>
+
+  <!-- Second Row: 3D Radial Chart (Full Width) -->
+  <div class="dashboard-row">
+    <div class="chart-section" style="grid-column: 1 / -1;">
+      <div class="chart-card">
+        <h5 class="section-title">Estado de Instalaciones</h5>
+        <div class="chart-wrapper" style="max-height: 320px;">
+          <canvas id="graficaRadialInstalaciones"></canvas>
+        </div>
+        <div class="chart-legend-wrapper">
+          <div class="legend-item">
+            <span class="legend-color" style="background: linear-gradient(135deg, #24A86B, #52D196);"></span>
+            <span class="legend-label">Instalados</span>
+            <span class="legend-value">850</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background: linear-gradient(135deg, #26A3C4, #5CE1E6);"></span>
+            <span class="legend-label">En proceso</span>
+            <span class="legend-value">320</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background: linear-gradient(135deg, #E86B58, #F4A261);"></span>
+            <span class="legend-label">Cancelados</span>
+            <span class="legend-value">120</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 {% block scripts %}
@@ -154,6 +183,126 @@
         }
       }
     }
+  });
+
+  // 3D Radial Chart
+  const ctx2 = document.getElementById('graficaRadialInstalaciones');
+  const g2 = ctx2.getContext('2d');
+
+  const ringData = {
+    labels: ['Instalados', 'En proceso', 'Cancelados'],
+    datasets: [{
+      data: [850, 320, 120],
+      backgroundColor: [
+        createRingGradient(g2, '#24A86B', '#52D196'),
+        createRingGradient(g2, '#26A3C4', '#5CE1E6'),
+        createRingGradient(g2, '#E86B58', '#F4A261')
+      ],
+      borderWidth: 0,
+      spacing: 8,
+      borderRadius: 12,
+      circumference: 300,
+      rotation: -150,
+      offset: 0,
+      weight: 0.6
+    }]
+  };
+
+  function createRingGradient(ctx, colorStart, colorEnd) {
+    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 150);
+    gradient.addColorStop(0, colorStart);
+    gradient.addColorStop(0.5, colorEnd);
+    gradient.addColorStop(1, colorStart + '33');
+    return gradient;
+  }
+
+  const plugins2 = {
+    tooltip: {
+      backgroundColor: 'rgba(16, 42, 33, 0.92)',
+      titleColor: '#F5F2E8',
+      bodyColor: '#B7EBD6',
+      padding: 12,
+      cornerRadius: 10,
+      displayColors: true,
+      callbacks: {
+        label: function(context) {
+          const total = context.dataset.data.reduce((a, b) => a + b, 0);
+          const percentage = ((context.raw / total) * 100).toFixed(1);
+          return `${context.label}: ${context.raw} (${percentage}%)`;
+        },
+        title: function() {
+          return '';
+        }
+      }
+    },
+    legend: {
+      display: false
+    },
+    datalabels: {
+      display: false
+    }
+  };
+
+  new Chart(ctx2, {
+    type: 'doughnut',
+    data: ringData,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '55%',
+      circumference: 300,
+      rotation: -150,
+      animation: {
+        animateRotate: true,
+        animateScale: true,
+        duration: 1200,
+        easing: 'easeOutQuart'
+      },
+      plugins: plugins2,
+      elements: {
+        arc: {
+          borderWidth: 0,
+          borderRadius: 12,
+          shadowColor: 'rgba(15, 61, 46, 0.25)',
+          shadowBlur: 20,
+          shadowOffsetX: 0,
+          shadowOffsetY: 8
+        }
+      },
+      layout: {
+        padding: 20
+      }
+    },
+    plugins: [{
+      id: 'centerText',
+      beforeDraw: function(chart) {
+        const ctx = chart.ctx;
+        const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+        const width = chart.width;
+        const height = chart.height;
+        const fontSize = Math.min(width, height) / 7;
+        
+        ctx.save();
+        ctx.font = `700 ${fontSize}px 'Segoe UI', sans-serif`;
+        ctx.fillStyle = '#102A21';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        const centerX = width / 2;
+        const centerY = height / 2 + 10;
+        
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.4)';
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetY = 1;
+        
+        ctx.fillText(total.toLocaleString(), centerX, centerY - 8);
+        
+        ctx.font = `500 ${fontSize * 0.35}px 'Segoe UI', sans-serif`;
+        ctx.fillStyle = '#166534';
+        ctx.fillText('Total Instalaciones', centerX, centerY + fontSize * 0.5);
+        ctx.restore();
+      }
+    }]
   });
 </script>
 {% endblock %}
