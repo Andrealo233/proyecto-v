@@ -1,24 +1,284 @@
 {% extends "principal.html" %}
 {% block title %}Gestión del Agua y Lecturas{% endblock %}
 {% block content %}
-<div class="modulo-card">
-  <h5 class="fw-bold text-success mb-3">💧 Registro de Lecturas de Consumo</h5>
-  <form method="POST" class="row g-3 mb-4">
-    <div class="col-md-4">
-      <label class="form-label small fw-bold">Servicio / Medidor</label>
-      <select name="servicio" class="form-select"><option>AV-001 · Juan Pérez (M-101)</option><option>AV-002 · María López (M-102)</option></select>
+<div class="modulo-card mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <h5 class="fw-bold mb-0" style="color: var(--title-dark);">💧 Gestión del Agua - Telemetría y Lecturas</h5>
+  </div>
+
+  <!-- Telemetría KPIs -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #D6F1F8 0%, #EAF8FC 100%); border-color: #26A3C4;">
+        <small class="text-muted d-block">CAUDAL BOCATOMA</small>
+        <h3 class="fw-bold mb-0" style="color: #26A3C4;">{{ telemetria.bocatoma_caudal_ls }} L/s</h3>
+      </div>
     </div>
-    <div class="col-md-3"><label class="form-label small fw-bold">Lectura Anterior</label><input type="number" name="lectura_anterior" value="1200" class="form-control" required></div>
-    <div class="col-md-3"><label class="form-label small fw-bold">Lectura Actual</label><input type="number" name="lectura_actual" value="1220" class="form-control" required></div>
-    <div class="col-md-2 d-flex align-items-end"><button type="submit" class="btn btn-verde w-100">💾 Guardar</button></div>
-  </form>
-  <table class="table table-sm">
-    <thead><tr><th>Servicio</th><th>Anterior</th><th>Actual</th><th>Consumo</th><th>Fecha</th></tr></thead>
-    <tbody>
-      {% for l in lecturas %}
-      <tr><td>{{ l.servicio }}</td><td>{{ l.lectura_anterior }}</td><td>{{ l.lectura_actual }}</td><td class="fw-bold text-success">{{ l.consumo }} m³</td><td>{{ l.fecha }}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <div class="col-md-3">
+      <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #CFF2E1 0%, #E7F9F0 100%); border-color: #24A86B;">
+        <small class="text-muted d-block">TANQUE PRINCIPAL</small>
+        <div class="d-flex align-items-center justify-content-center gap-2">
+          <h3 class="fw-bold mb-0" style="color: #24A86B;">{{ telemetria.tanque_principal_nivel }}%</h3>
+          <div style="width: 60px; height: 8px; background: rgba(36, 168, 107, 0.2); border-radius: 4px; overflow: hidden;">
+            <div style="width: {{ telemetria.tanque_principal_nivel }}%; height: 100%; background: linear-gradient(90deg, #24A86B, #52D196); border-radius: 4px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #CFF2E1 0%, #E7F9F0 100%); border-color: #24A86B;">
+        <small class="text-muted d-block">TANQUE ALTO</small>
+        <div class="d-flex align-items-center justify-content-center gap-2">
+          <h3 class="fw-bold mb-0" style="color: #24A86B;">{{ telemetria.tanque_alto_nivel }}%</h3>
+          <div style="width: 60px; height: 8px; background: rgba(36, 168, 107, 0.2); border-radius: 4px; overflow: hidden;">
+            <div style="width: {{ telemetria.tanque_alto_nivel }}%; height: 100%; background: linear-gradient(90deg, #24A86B, #52D196); border-radius: 4px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #E2F3CF 0%, #F1F9E6 100%); border-color: #68A832;">
+        <small class="text-muted d-block">CALIDAD AGUA</small>
+        <div class="d-flex justify-content-center gap-3">
+          <span class="badge bg-success">pH {{ telemetria.ph }}</span>
+          <span class="badge bg-info">Cl {{ telemetria.cloro_residual }} mg/L</span>
+          <span class="badge bg-warning text-dark">Turb {{ telemetria.turbidez }} NTU</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-8">
+      <div class="section-card h-100">
+        <h6 class="fw-bold mb-3" style="color: var(--ink-forest);">Consumo Diario y Caudal (Últimos 7 días)</h6>
+        <div class="chart-wrapper" style="min-height: 300px; max-height: 300px;">
+          <canvas id="graficaConsumoDiario"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="section-card h-100">
+        <h6 class="fw-bold mb-3" style="color: var(--ink-forest);">Consumo por Vereda (m³)</h6>
+        <div class="chart-wrapper" style="min-height: 300px; max-height: 300px;">
+          <canvas id="graficaVeredasConsumo"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario de Lecturas -->
+  <div class="row g-3 mb-4">
+    <div class="col-12">
+      <h6 class="fw-bold mb-3" style="color: var(--ink-forest);">📝 Registrar Nueva Lectura</h6>
+      <form method="POST" class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label small fw-bold">Servicio / Medidor</label>
+          <select name="servicio" class="form-select" required>
+            <option value="">Seleccionar...</option>
+            {% for l in lecturas %}
+            <option value="{{ l.servicio }}">{{ l.servicio }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3"><label class="form-label small fw-bold">Lectura Anterior</label><input type="number" name="lectura_anterior" class="form-control" required></div>
+        <div class="col-md-3"><label class="form-label small fw-bold">Lectura Actual</label><input type="number" name="lectura_actual" class="form-control" required></div>
+        <div class="col-md-2 d-flex align-items-end"><button type="submit" class="btn btn-verde w-100">💾 Guardar</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabla de Lecturas -->
+  <div class="table-responsive">
+    <table class="table table-sm table-hover">
+      <thead><tr><th>Servicio</th><th>Vereda</th><th>Anterior</th><th>Actual</th><th>Consumo</th><th>Fecha</th></tr></thead>
+      <tbody>
+        {% for l in lecturas %}
+        <tr>
+          <td>{{ l.servicio }}</td>
+          <td><span class="badge bg-info">{{ l.vereda }}</span></td>
+          <td>{{ l.lectura_anterior }}</td>
+          <td>{{ l.lectura_actual }}</td>
+          <td class="fw-bold" style="color: #24A86B;">{{ l.consumo }} m³</td>
+          <td>{{ l.fecha }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+  // ============================================================
+  // AREA/LINE CHART - Consumo Diario y Caudal
+  // ============================================================
+  const ctxConsumo = document.getElementById('graficaConsumoDiario');
+  if (ctxConsumo) {
+    const gConsumo = ctxConsumo.getContext('2d');
+    const consumoData = {{ consumo_diario|tojson }};
+    const labels = consumoData.map(d => d.fecha.split('-').slice(1).join('-'));
+    const consumo = consumoData.map(d => d.consumo_m3);
+    const caudal = consumoData.map(d => d.caudal_ls);
+
+    const gradConsumo = gConsumo.createLinearGradient(0, 0, 0, 300);
+    gradConsumo.addColorStop(0, '#24A86B');
+    gradConsumo.addColorStop(1, 'rgba(36, 168, 107, 0)');
+
+    const gradCaudal = gConsumo.createLinearGradient(0, 0, 0, 300);
+    gradCaudal.addColorStop(0, '#26A3C4');
+    gradCaudal.addColorStop(1, 'rgba(38, 163, 196, 0)');
+
+    new Chart(ctxConsumo, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Consumo (m³)',
+            data: consumo,
+            borderColor: '#24A86B',
+            backgroundColor: gradConsumo,
+            fill: true,
+            tension: 0.4,
+            borderWidth: 3,
+            pointRadius: 5,
+            pointBackgroundColor: '#24A86B',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 7,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Caudal (L/s)',
+            data: caudal,
+            borderColor: '#26A3C4',
+            backgroundColor: gradCaudal,
+            fill: true,
+            tension: 0.4,
+            borderWidth: 3,
+            pointRadius: 5,
+            pointBackgroundColor: '#26A3C4',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 7,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { position: 'top', labels: { color: '#144734', font: { size: 11 }, usePointStyle: true, pointStyle: 'circle' } },
+          tooltip: {
+            backgroundColor: 'rgba(16, 42, 33, 0.92)',
+            titleColor: '#F5F2E8',
+            bodyColor: '#B7EBD6',
+            padding: 12,
+            cornerRadius: 10,
+            callbacks: {
+              label: function(context) {
+                return `${context.dataset.label}: ${context.raw.toLocaleString()}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#144734', font: { size: 10 } } },
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            beginAtZero: true,
+            grid: { color: 'rgba(34, 154, 103, 0.06)' },
+            ticks: { color: '#144734', font: { size: 10 } },
+            title: { display: true, text: 'm³', color: '#144734', font: { size: 10 } }
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            beginAtZero: true,
+            grid: { drawOnChartArea: false },
+            ticks: { color: '#144734', font: { size: 10 } },
+            title: { display: true, text: 'L/s', color: '#144734', font: { size: 10 } }
+          }
+        },
+        animation: { duration: 1200, easing: 'easeOutQuart' }
+      }
+    });
+  }
+
+  // ============================================================
+  // HORIZONTAL BAR CHART - Consumo por Vereda
+  // ============================================================
+  const ctxVeredas = document.getElementById('graficaVeredasConsumo');
+  if (ctxVeredas) {
+    const gVeredas = ctxVeredas.getContext('2d');
+    const veredasData = {{ veredas_consumo|tojson }};
+    const labels = Object.keys(veredasData);
+    const data = Object.values(veredasData);
+
+    const veredaColors = [
+      { dark: '#0D5A3A', light: '#2EA85D' },
+      { dark: '#0D4A6B', light: '#2A9FD8' },
+      { dark: '#166B4A', light: '#34C759' },
+      { dark: '#0B4D2E', light: '#20BF55' },
+      { dark: '#145E3D', light: '#30D158' }
+    ];
+
+    const veredaGradients = veredaColors.slice(0, labels.length).map(({ dark, light }) => {
+      const gr = gVeredas.createLinearGradient(0, 0, 250, 0);
+      gr.addColorStop(0, dark);
+      gr.addColorStop(1, light);
+      return gr;
+    });
+
+    new Chart(ctxVeredas, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'm³',
+          data: data,
+          backgroundColor: veredaGradients,
+          borderRadius: 8,
+          borderWidth: 0,
+          borderSkipped: false,
+          indexAxis: 'y',
+          barPercentage: 0.7,
+          categoryPercentage: 0.6,
+          shadowColor: 'rgba(34, 154, 103, 0.25)',
+          shadowBlur: 12,
+          shadowOffsetX: 4,
+          shadowOffsetY: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(16, 42, 33, 0.92)',
+            titleColor: '#F5F2E8',
+            bodyColor: '#B7EBD6',
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw} m³` }
+          }
+        },
+        scales: {
+          x: { beginAtZero: true, grid: { color: 'rgba(34, 154, 103, 0.06)' }, ticks: { color: '#144734', font: { size: 10 } } },
+          y: { grid: { display: false }, ticks: { color: '#144734', font: { size: 10 } } }
+        },
+        animation: { duration: 1000, easing: 'easeOutQuart' }
+      }
+    });
+  }
+</script>
 {% endblock %}

@@ -8,38 +8,85 @@
       <div class="kpi-border"></div>
       <div class="kpi-content">
         <small class="kpi-label">USUARIOS</small>
-        <h4 class="kpi-value fw-bold mb-0">1.254</h4>
+        <h4 class="kpi-value fw-bold mb-0">{{ kpis.usuarios|default(1254) }}</h4>
       </div>
     </div>
     <div class="kpi-card servicios">
       <div class="kpi-border"></div>
       <div class="kpi-content">
         <small class="kpi-label">SERVICIOS ACTIVOS</small>
-        <h4 class="kpi-value fw-bold mb-0">412</h4>
+        <h4 class="kpi-value fw-bold mb-0">{{ kpis.servicios|default(412) }}</h4>
       </div>
     </div>
     <div class="kpi-card recaudo">
       <div class="kpi-border"></div>
       <div class="kpi-content">
         <small class="kpi-label">RECAUDO JULIO</small>
-        <h4 class="kpi-value fw-bold mb-0">$12.5M</h4>
+        <h4 class="kpi-value fw-bold mb-0">${{ (kpis.recaudo|default(12500000)/1000000)|round(1) }}M</h4>
       </div>
     </div>
     <div class="kpi-card pqrs">
       <div class="kpi-border"></div>
       <div class="kpi-content">
         <small class="kpi-label">PQRS PENDIENTES</small>
-        <h4 class="kpi-value fw-bold mb-0">18</h4>
+        <h4 class="kpi-value fw-bold mb-0">{{ kpis.pqrs|default(18) }}</h4>
       </div>
     </div>
   </div>
 
   <!-- Charts & Activity Row -->
   <div class="dashboard-row">
-    <!-- Left: Bar Chart (60%) -->
+    <!-- Left: Radial Chart (60%) -->
     <div class="chart-section">
       <div class="chart-card">
-        <h5 class="section-title">Ventas de instalaci&#243;n</h5>
+        <h5 class="section-title">Estado de Instalaciones</h5>
+        <div class="chart-wrapper">
+          <canvas id="graficaRadialInstalaciones"></canvas>
+        </div>
+        <div class="chart-legend-wrapper">
+          <div class="legend-item">
+            <span class="legend-color" style="background: linear-gradient(135deg, #24A86B, #52D196);"></span>
+            <span class="legend-label">Instalados</span>
+            <span class="legend-value">{{ instalados|default(310) }}</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background: linear-gradient(135deg, #26A3C4, #5CE1E6);"></span>
+            <span class="legend-label">En proceso</span>
+            <span class="legend-value">{{ en_proceso|default(74) }}</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color" style="background: linear-gradient(135deg, #E86B58, #F4A261);"></span>
+            <span class="legend-label">Cancelados</span>
+            <span class="legend-value">{{ cancelados|default(28) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Recent Activity Panel (40%) -->
+    <div class="activity-section">
+      <div class="section-card">
+        <h5 class="section-title">Actividad Reciente</h5>
+        <div class="activity-list">
+          {% for item in actividad %}
+          <div class="activity-item">
+            <span class="activity-icon {{ item.tipo }}">{{ item.icono }}</span>
+            <div class="activity-details">
+              <span class="activity-title"><span class="status-dot {{ item.tipo }}"></span>{{ item.titulo }}</span>
+              <span class="activity-meta">{{ item.detalle }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Second Row: Bar Chart - Ventas Mensuales -->
+  <div class="dashboard-row">
+    <div class="chart-section" style="grid-column: 1 / -1;">
+      <div class="chart-card">
+        <h5 class="section-title">Ventas de Instalación - Últimos 7 Meses</h5>
         <div class="chart-wrapper">
           <canvas id="graficaVentasInstalacion"></canvas>
         </div>
@@ -49,7 +96,7 @@
               <tr>
                 <th>Mes</th>
                 <th>Ventas</th>
-                <th>Variaci&#243;n</th>
+                <th>Variación</th>
               </tr>
             </thead>
             <tbody>
@@ -65,296 +112,219 @@
         </div>
       </div>
     </div>
-
-    <!-- Right: Recent Activity Panel (40%) -->
-    <div class="activity-section">
-      <div class="section-card">
-        <h5 class="section-title">Actividad Reciente</h5>
-        <div class="activity-list">
-          <div class="activity-item">
-            <span class="activity-icon success">💰</span>
-            <div class="activity-details">
-              <span class="activity-title"><span class="status-dot success"></span>Pago recibido</span>
-              <span class="activity-meta">Juan P&#233;rez - $45.000 - Hace 15 min</span>
-            </div>
-          </div>
-          <div class="activity-item">
-            <span class="activity-icon warning">⚡</span>
-            <div class="activity-details">
-              <span class="activity-title"><span class="status-dot warning"></span>Corte programado</span>
-              <span class="activity-meta">Sector 3 - Ma&#241;ana 8:00 AM</span>
-            </div>
-          </div>
-          <div class="activity-item">
-            <span class="activity-icon danger">🚨</span>
-            <div class="activity-details">
-              <span class="activity-title"><span class="status-dot warning"></span>PQRS Urgente</span>
-              <span class="activity-meta">Fuga en acueducto veredal - Sin resolver</span>
-            </div>
-          </div>
-          <div class="activity-item">
-            <span class="activity-icon info">📋</span>
-            <div class="activity-details">
-              <span class="activity-title"><span class="status-dot info"></span>Nueva solicitud</span>
-              <span class="activity-meta">Mar&#237;a L&#243;pez - Cambio de medidor</span>
-            </div>
-          </div>
-          <div class="activity-item">
-            <span class="activity-icon success">💰</span>
-            <div class="activity-details">
-              <span class="activity-title"><span class="status-dot success"></span>Pago recibido</span>
-              <span class="activity-meta">Carlos Ruiz - $38.500 - Hace 1 hora</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Second Row: 3D Radial Chart (Full Width) -->
-  <div class="dashboard-row">
-    <div class="chart-section" style="grid-column: 1 / -1;">
-      <div class="chart-card">
-        <h5 class="section-title">Estado de Instalaciones</h5>
-        <div class="chart-wrapper" style="max-height: 320px;">
-          <canvas id="graficaRadialInstalaciones"></canvas>
-        </div>
-        <div class="chart-legend-wrapper">
-          <div class="legend-item">
-            <span class="legend-color" style="background: linear-gradient(135deg, #0D5A3A, #2EA85D);"></span>
-            <span class="legend-label">Instalados</span>
-            <span class="legend-value">850</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-color" style="background: linear-gradient(135deg, #0D4A6B, #2A9FD8);"></span>
-            <span class="legend-label">En proceso</span>
-            <span class="legend-value">320</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-color" style="background: linear-gradient(135deg, #5A1E0D, #D85A2A);"></span>
-            <span class="legend-label">Cancelados</span>
-            <span class="legend-value">120</span>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 {% endblock %}
 {% block scripts %}
 <script>
-  const ctx1 = document.getElementById('graficaVentasInstalacion');
-  const g1 = ctx1.getContext('2d');
+  // ============================================================
+  // 3D RADIAL CHART - Estado de Instalaciones
+  // ============================================================
+  const ctxRadial = document.getElementById('graficaRadialInstalaciones');
+  if (ctxRadial) {
+    const gRadial = ctxRadial.getContext('2d');
 
-  // 3D Bar Chart - Dark to Light Gradients
-  const barColors = [
-    { dark: '#0D5A7A', light: '#2EA8D8' },   // Ene - azul oscuro a claro
-    { dark: '#0F5D3A', light: '#28A745' },   // Feb - verde oscuro a claro
-    { dark: '#166B4A', light: '#34C759' },   // Mar - verde medio a claro
-    { dark: '#0B4D2E', light: '#20BF55' },   // Abr - verde muy oscuro a claro
-    { dark: '#145E3D', light: '#30D158' },   // May - verde oscuro a claro
-    { dark: '#0E6A42', light: '#2CC665' },   // Jun - verde medio-oscuro a claro
-    { dark: '#127351', light: '#3AE06B' }    // Jul - verde a muy claro
-  ];
-
-  const barGradients = barColors.map(({ dark, light }) => {
-    const gr = g1.createLinearGradient(0, 280, 0, 0); // bottom to top (dark to light)
-    gr.addColorStop(0, dark);
-    gr.addColorStop(0.3, dark);
-    gr.addColorStop(0.7, light);
-    gr.addColorStop(1, light);
-    return gr;
-  });
-
-  const barHoverGradients = barColors.map(({ dark, light }) => {
-    const gr = g1.createLinearGradient(0, 280, 0, 0);
-    gr.addColorStop(0, dark);
-    gr.addColorStop(0.3, light);
-    gr.addColorStop(0.7, light);
-    gr.addColorStop(1, light + 'CC');
-    return gr;
-  });
-
-  new Chart(ctx1, {
-    type: 'bar',
-    data: { 
-      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'], 
-      datasets: [{ 
-        label: 'Ventas de instalaci\u00f3n', 
-        data: [850, 920, 780, 1100, 950, 1020, 1150], 
-        backgroundColor: barGradients,
-        hoverBackgroundColor: barHoverGradients,
-        borderRadius: 12,
+    const ringData = {
+      labels: ['Instalados', 'En proceso', 'Cancelados'],
+      datasets: [{
+        data: [
+          {{ instalados|default(310) }},
+          {{ en_proceso|default(74) }},
+          {{ cancelados|default(28) }}
+        ],
+        backgroundColor: [
+          createRingGradient(gRadial, '#24A86B', '#52D196'),
+          createRingGradient(gRadial, '#26A3C4', '#5CE1E6'),
+          createRingGradient(gRadial, '#E86B58', '#F4A261')
+        ],
         borderWidth: 0,
-        borderSkipped: false,
-        barPercentage: 0.6,
-        categoryPercentage: 0.7,
-        shadowColor: 'rgba(15, 61, 46, 0.3)',
-        shadowBlur: 15,
-        shadowOffsetX: 0,
-        shadowOffsetY: 8
-      }] 
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { 
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(16, 42, 33, 0.92)',
-          titleColor: '#F5F2E8',
-          bodyColor: '#B7EBD6',
-          padding: 12,
-          cornerRadius: 10,
-          displayColors: false,
-          callbacks: {
-            label: function(context) {
-              return `Ventas: ${context.raw.toLocaleString()}`;
-            }
-          }
-        }
-      },
-      scales: {
-        y: { 
-          beginAtZero: true, 
-          grid: { color: 'rgba(16, 42, 33, 0.06)' },
-          ticks: { color: '#102A21', font: { size: 11 } }
-        },
-        x: { 
-          grid: { display: false },
-          ticks: { color: '#102A21', font: { size: 11 } }
-        }
-      },
-      animation: {
-        duration: 1000,
-        easing: 'easeOutQuart'
-      }
+        spacing: 10,
+        borderRadius: 16,
+        circumference: 300,
+        rotation: -150,
+        weight: 0.55
+      }]
+    };
+
+    function createRingGradient(ctx, colorDark, colorLight) {
+      const gradient = ctx.createRadialGradient(0, 0, 40, 0, 0, 160);
+      gradient.addColorStop(0, colorLight);
+      gradient.addColorStop(0.4, colorLight);
+      gradient.addColorStop(0.7, colorDark);
+      gradient.addColorStop(1, colorDark + 'CC');
+      return gradient;
     }
-  });
 
-  // 3D Radial Chart - Dark to Light Gradients
-  const ctx2 = document.getElementById('graficaRadialInstalaciones');
-  const g2 = ctx2.getContext('2d');
+    new Chart(ctxRadial, {
+      type: 'doughnut',
+      data: ringData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '58%',
+        circumference: 300,
+        rotation: -150,
+        animation: {
+          animateRotate: true,
+          animateScale: true,
+          duration: 1400,
+          easing: 'easeOutQuart'
+        },
+        plugins: {
+          tooltip: {
+            backgroundColor: 'rgba(16, 42, 33, 0.92)',
+            titleColor: '#F5F2E8',
+            bodyColor: '#B7EBD6',
+            padding: 12,
+            cornerRadius: 10,
+            displayColors: true,
+            callbacks: {
+              label: function(context) {
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = ((context.raw / total) * 100).toFixed(1);
+                return `${context.label}: ${context.raw} (${percentage}%)`;
+              },
+              title: function() { return ''; }
+            }
+          },
+          legend: { display: false }
+        },
+        elements: {
+          arc: {
+            borderWidth: 0,
+            borderRadius: 16,
+            borderAlign: 'inner',
+            shadowColor: 'rgba(15, 61, 46, 0.35)',
+            shadowBlur: 25,
+            shadowOffsetX: 0,
+            shadowOffsetY: 10
+          }
+        },
+        layout: { padding: 24 }
+      },
+      plugins: [{
+        id: 'centerText',
+        beforeDraw: function(chart) {
+          const ctx = chart.ctx;
+          const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+          const width = chart.width;
+          const height = chart.height;
+          const fontSize = Math.min(width, height) / 7;
 
-  const ringData = {
-    labels: ['Instalados', 'En proceso', 'Cancelados'],
-    datasets: [{
-      data: [850, 320, 120],
-      backgroundColor: [
-        createRingGradient3D(g2, '#0D5A3A', '#2EA85D'),   // Instalados: verde muy oscuro a claro
-        createRingGradient3D(g2, '#0D4A6B', '#2A9FD8'),   // En proceso: azul muy oscuro a claro
-        createRingGradient3D(g2, '#5A1E0D', '#D85A2A')    // Cancelados: rojo muy oscuro a claro
-      ],
-      borderWidth: 0,
-      spacing: 10,
-      borderRadius: 16,
-      circumference: 300,
-      rotation: -150,
-      offset: 0,
-      weight: 0.55
-    }]
-  };
+          ctx.save();
+          ctx.font = `800 ${fontSize}px 'Segoe UI', sans-serif`;
+          ctx.fillStyle = '#0D3D2A';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
 
-  function createRingGradient3D(ctx, colorDark, colorLight) {
-    const gradient = ctx.createRadialGradient(0, 0, 40, 0, 0, 160);
-    gradient.addColorStop(0, colorLight);      // Center - light
-    gradient.addColorStop(0.4, colorLight);    // Inner ring - light
-    gradient.addColorStop(0.7, colorDark);     // Middle - dark
-    gradient.addColorStop(1, colorDark + 'CC'); // Outer edge - dark with transparency
-    return gradient;
+          const centerX = width / 2;
+          const centerY = height / 2 + 12;
+
+          ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
+          ctx.shadowBlur = 6;
+          ctx.shadowOffsetY = 2;
+
+          ctx.fillText(total.toLocaleString(), centerX, centerY - 10);
+
+          ctx.font = `600 ${fontSize * 0.35}px 'Segoe UI', sans-serif`;
+          ctx.fillStyle = '#14532D';
+          ctx.shadowBlur = 2;
+          ctx.shadowOffsetY = 1;
+          ctx.fillText('Total Instalaciones', centerX, centerY + fontSize * 0.5);
+          ctx.restore();
+        }
+      }]
+    });
   }
 
-  const plugins2 = {
-    tooltip: {
-      backgroundColor: 'rgba(16, 42, 33, 0.92)',
-      titleColor: '#F5F2E8',
-      bodyColor: '#B7EBD6',
-      padding: 12,
-      cornerRadius: 10,
-      displayColors: true,
-      callbacks: {
-        label: function(context) {
-          const total = context.dataset.data.reduce((a, b) => a + b, 0);
-          const percentage = ((context.raw / total) * 100).toFixed(1);
-          return `${context.label}: ${context.raw} (${percentage}%)`;
-        },
-        title: function() {
-          return '';
-        }
-      }
-    },
-    legend: {
-      display: false
-    },
-    datalabels: {
-      display: false
-    }
-  };
+  // ============================================================
+  // 3D BAR CHART - Ventas de Instalación Mensuales
+  // ============================================================
+  const ctxBar = document.getElementById('graficaVentasInstalacion');
+  if (ctxBar) {
+    const gBar = ctxBar.getContext('2d');
 
-  new Chart(ctx2, {
-    type: 'doughnut',
-    data: ringData,
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '58%',
-      circumference: 300,
-      rotation: -150,
-      animation: {
-        animateRotate: true,
-        animateScale: true,
-        duration: 1400,
-        easing: 'easeOutQuart'
-      },
-      plugins: plugins2,
-      elements: {
-        arc: {
+    const barColors = [
+      { dark: '#0D5A7A', light: '#2EA8D8' },
+      { dark: '#0F5D3A', light: '#28A745' },
+      { dark: '#166B4A', light: '#34C759' },
+      { dark: '#0B4D2E', light: '#20BF55' },
+      { dark: '#145E3D', light: '#30D158' },
+      { dark: '#0E6A42', light: '#2CC665' },
+      { dark: '#127351', light: '#3AE06B' }
+    ];
+
+    const barGradients = barColors.map(({ dark, light }) => {
+      const gr = gBar.createLinearGradient(0, 280, 0, 0);
+      gr.addColorStop(0, dark);
+      gr.addColorStop(0.3, dark);
+      gr.addColorStop(0.7, light);
+      gr.addColorStop(1, light);
+      return gr;
+    });
+
+    const barHoverGradients = barColors.map(({ dark, light }) => {
+      const gr = gBar.createLinearGradient(0, 280, 0, 0);
+      gr.addColorStop(0, dark);
+      gr.addColorStop(0.3, light);
+      gr.addColorStop(0.7, light);
+      gr.addColorStop(1, light + 'CC');
+      return gr;
+    });
+
+    new Chart(ctxBar, {
+      type: 'bar',
+      data: {
+        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'],
+        datasets: [{
+          label: 'Ventas de instalación',
+          data: [850, 920, 780, 1100, 950, 1020, 1150],
+          backgroundColor: barGradients,
+          hoverBackgroundColor: barHoverGradients,
+          borderRadius: 12,
           borderWidth: 0,
-          borderRadius: 16,
-          borderAlign: 'inner',
-          shadowColor: 'rgba(15, 61, 46, 0.35)',
-          shadowBlur: 25,
+          borderSkipped: false,
+          barPercentage: 0.6,
+          categoryPercentage: 0.7,
+          shadowColor: 'rgba(15, 61, 46, 0.3)',
+          shadowBlur: 15,
           shadowOffsetX: 0,
-          shadowOffsetY: 10
-        }
+          shadowOffsetY: 8
+        }]
       },
-      layout: {
-        padding: 24
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(16, 42, 33, 0.92)',
+            titleColor: '#F5F2E8',
+            bodyColor: '#B7EBD6',
+            padding: 12,
+            cornerRadius: 10,
+            displayColors: false,
+            callbacks: {
+              label: function(context) {
+                return `Ventas: ${context.raw.toLocaleString()}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(16, 42, 33, 0.06)' },
+            ticks: { color: '#102A21', font: { size: 11 } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#102A21', font: { size: 11 } }
+          }
+        },
+        animation: { duration: 1000, easing: 'easeOutQuart' }
       }
-    },
-    plugins: [{
-      id: 'centerText',
-      beforeDraw: function(chart) {
-        const ctx = chart.ctx;
-        const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-        const width = chart.width;
-        const height = chart.height;
-        const fontSize = Math.min(width, height) / 7;
-        
-        ctx.save();
-        ctx.font = `800 ${fontSize}px 'Segoe UI', sans-serif`;
-        ctx.fillStyle = '#0D3D2A';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
-        const centerX = width / 2;
-        const centerY = height / 2 + 12;
-        
-        // Glow effect for 3D text
-        ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
-        ctx.shadowBlur = 6;
-        ctx.shadowOffsetY = 2;
-        
-        ctx.fillText(total.toLocaleString(), centerX, centerY - 10);
-        
-        ctx.font = `600 ${fontSize * 0.35}px 'Segoe UI', sans-serif`;
-        ctx.fillStyle = '#14532D';
-        ctx.shadowBlur = 2;
-        ctx.shadowOffsetY = 1;
-        ctx.fillText('Total Instalaciones', centerX, centerY + fontSize * 0.5);
-        ctx.restore();
-      }
-    }]
-  });
+    });
+  }
 </script>
 {% endblock %}

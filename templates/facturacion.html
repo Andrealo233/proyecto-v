@@ -2,33 +2,339 @@
 {% block title %}Facturación y Pagos{% endblock %}
 {% block content %}
 <div class="row g-4">
-  <div class="col-lg-8">
-    <div class="modulo-card h-100">
-      <h5 class="fw-bold text-success mb-3">🧾 Facturación y Cartera Rural</h5>
-      <table class="table align-middle">
-        <thead class="table-light"><tr><th># Factura</th><th>Asociado</th><th>Valor</th><th>Estado</th><th>Acción</th></tr></thead>
-        <tbody>
-          {% for f in facturas %}
-          <tr>
-            <td class="fw-bold">{{ f.numero }}</td><td>{{ f.asociado }}</td><td>$ {{ f.valor }}</td>
-            <td><span class="badge {% if f.estado == 'Pagada' %}bg-success{% else %}bg-warning text-dark{% endif %}">{{ f.estado }}</span></td>
-            <td>
-              {% if f.estado != 'Pagada' %}
-              <form method="POST"><input type="hidden" name="id_factura" value="{{ f.id }}"><button class="btn btn-outline-success btn-sm">Registrar Pago</button></form>
-              {% else %} ✅ {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <div class="col-12">
+    <div class="modulo-card mb-4">
+      <h5 class="fw-bold mb-4" style="color: var(--title-dark);">🧾 Facturación y Cartera Rural</h5>
+
+      <!-- KPIs -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #D6F1F8 0%, #EAF8FC 100%); border-color: #26A3C4;">
+            <small class="text-muted d-block">FACTURADO (2025)</small>
+            <h3 class="fw-bold mb-0" style="color: #26A3C4;">${{ "{:,.0f}".format(kpis.facturado) }}</h3>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #CFF2E1 0%, #E7F9F0 100%); border-color: #24A86B;">
+            <small class="text-muted d-block">RECAUDADO</small>
+            <h3 class="fw-bold mb-0" style="color: #24A86B;">${{ "{:,.0f}".format(kpis.recaudado) }}</h3>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #FCE6DF 0%, #FEF2EE 100%); border-color: #E86B58;">
+            <small class="text-muted d-block">EN MORA</small>
+            <h3 class="fw-bold mb-0" style="color: #E86B58;">${{ "{:,.0f}".format(kpis.mora) }}</h3>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #E2F3CF 0%, #F1F9E6 100%); border-color: #68A832;">
+            <small class="text-muted d-block">% RECAUDO</small>
+            <h3 class="fw-bold mb-0" style="color: #68A832;">{{ kpis.porcentaje_recaudo }}%</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+          <div class="section-card h-100">
+            <h6 class="fw-bold mb-3" style="color: var(--ink-forest);">Recaudo Mensual vs Facturación (COP)</h6>
+            <div class="chart-wrapper" style="min-height: 300px; max-height: 300px;">
+              <canvas id="graficaRecaudoMensual"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="section-card h-100">
+            <h6 class="fw-bold mb-3" style="color: var(--ink-forest);">Estado de Cartera</h6>
+            <div class="chart-wrapper" style="min-height: 300px; max-height: 300px;">
+              <canvas id="graficaCarteraEstado"></canvas>
+            </div>
+            <div class="mt-3">
+              <h6 class="fw-bold mb-2" style="color: var(--ink-forest);">Métodos de Pago</h6>
+              <div class="chart-wrapper" style="min-height: 150px; max-height: 150px;">
+                <canvas id="graficaMetodosPago"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de Facturas -->
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead><tr><th># Factura</th><th>Asociado</th><th>Documento</th><th>Periodo</th><th>m³</th><th>Valor</th><th>Estado</th><th>Acción</th></tr></thead>
+          <tbody>
+            {% for f in facturas %}
+            <tr>
+              <td class="fw-bold">{{ f.numero }}</td>
+              <td>{{ f.asociado }}</td>
+              <td>{{ f.documento }}</td>
+              <td>{{ f.periodo }}</td>
+              <td>{{ f.m3 }}</td>
+              <td class="fw-bold" style="color: var(--ink-forest);">${{ "{:,.0f}".format(f.valor) }}</td>
+              <td>
+                {% if f.estado == 'Pagada' %}
+                  <span class="badge bg-success">{{ f.estado }}</span>
+                {% elif f.estado == 'En Mora' %}
+                  <span class="badge bg-danger">{{ f.estado }}</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">{{ f.estado }}</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if f.estado != 'Pagada' %}
+                <form method="POST"><input type="hidden" name="id_factura" value="{{ f.id }}"><button class="btn btn-outline-success btn-sm">Registrar Pago</button></form>
+                {% else %} <span class="text-success fw-bold">✅ Pagado</span> {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
+
   <div class="col-lg-4">
     <div class="modulo-card h-100 text-center">
-      <h6 class="fw-bold text-success mb-2">💳 Puntos y Pago de Servicios</h6>
+      <h6 class="fw-bold mb-2" style="color: var(--ink-forest);">💳 Puntos y Pago de Servicios</h6>
       <img src="{{ url_for('static', filename='img/pago servicios.jpg') }}" alt="Pago de Servicios" class="img-pago-servicios mb-3">
       <p class="small text-muted mb-0">Presenta tu código de factura para realizar el pago comunitario en línea o punto autorizado.</p>
     </div>
   </div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+  // ============================================================
+  // GROUPED BAR CHART - Recaudo Mensual vs Facturación
+  // ============================================================
+  const ctxRecaudo = document.getElementById('graficaRecaudoMensual');
+  if (ctxRecaudo) {
+    const gRecaudo = ctxRecaudo.getContext('2d');
+    const recaudoData = {{ recaudo_mensual|tojson }};
+    const labels = recaudoData.map(d => d.mes);
+    const facturado = recaudoData.map(d => d.facturado);
+    const recaudado = recaudoData.map(d => d.recaudado);
+    const mora = recaudoData.map(d => d.mora);
+
+    const gradFacturado = gRecaudo.createLinearGradient(0, 300, 0, 0);
+    gradFacturado.addColorStop(0, '#26A3C4');
+    gradFacturado.addColorStop(1, '#5CE1E6');
+
+    const gradRecaudado = gRecaudo.createLinearGradient(0, 300, 0, 0);
+    gradRecaudado.addColorStop(0, '#24A86B');
+    gradRecaudado.addColorStop(1, '#52D196');
+
+    const gradMora = gRecaudo.createLinearGradient(0, 300, 0, 0);
+    gradMora.addColorStop(0, '#E86B58');
+    gradMora.addColorStop(1, '#F4A261');
+
+    new Chart(ctxRecaudo, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Facturado',
+            data: facturado,
+            backgroundColor: gradFacturado,
+            borderRadius: 8,
+            borderWidth: 0,
+            borderSkipped: false,
+            barPercentage: 0.5,
+            categoryPercentage: 0.7,
+            shadowColor: 'rgba(38, 163, 196, 0.3)',
+            shadowBlur: 10,
+            shadowOffsetY: 5
+          },
+          {
+            label: 'Recaudado',
+            data: recaudado,
+            backgroundColor: gradRecaudado,
+            borderRadius: 8,
+            borderWidth: 0,
+            borderSkipped: false,
+            barPercentage: 0.5,
+            categoryPercentage: 0.7,
+            shadowColor: 'rgba(36, 168, 107, 0.3)',
+            shadowBlur: 10,
+            shadowOffsetY: 5
+          },
+          {
+            label: 'Mora',
+            data: mora,
+            backgroundColor: gradMora,
+            borderRadius: 8,
+            borderWidth: 0,
+            borderSkipped: false,
+            barPercentage: 0.5,
+            categoryPercentage: 0.7,
+            shadowColor: 'rgba(232, 107, 88, 0.3)',
+            shadowBlur: 10,
+            shadowOffsetY: 5
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { color: '#144734', font: { size: 11 }, usePointStyle: true, pointStyle: 'rect' } },
+          tooltip: {
+            backgroundColor: 'rgba(16, 42, 33, 0.92)',
+            titleColor: '#F5F2E8',
+            bodyColor: '#B7EBD6',
+            padding: 12,
+            cornerRadius: 10,
+            callbacks: {
+              label: function(context) {
+                return `${context.dataset.label}: $${context.raw.toLocaleString()}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#144734', font: { size: 10 } } },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(34, 154, 103, 0.06)' },
+            ticks: {
+              color: '#144734',
+              font: { size: 10 },
+              callback: function(value) { return '$' + (value/1000000).toFixed(1) + 'M'; }
+            }
+          }
+        },
+        animation: { duration: 1000, easing: 'easeOutQuart' }
+      }
+    });
+  }
+
+  // ============================================================
+  // DOUGHNUT CHART - Estado de Cartera
+  // ============================================================
+  const ctxCartera = document.getElementById('graficaCarteraEstado');
+  if (ctxCartera) {
+    const gCartera = ctxCartera.getContext('2d');
+    const carteraData = {{ cartera_estado|tojson }};
+    const labels = Object.keys(carteraData).map(k => k.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()));
+    const data = Object.values(carteraData);
+
+    const carteraColors = ['#24A86B', '#E86B58', '#F4A261'];
+    const carteraGradients = carteraColors.map((c, i) => {
+      const gr = gCartera.createRadialGradient(0, 0, 0, 0, 0, 120);
+      gr.addColorStop(0, c + 'CC');
+      gr.addColorStop(1, c);
+      return gr;
+    });
+
+    new Chart(ctxCartera, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: carteraGradients,
+          borderWidth: 0,
+          borderRadius: 8,
+          spacing: 4,
+          cutout: '60%',
+          weight: 0.6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#144734', font: { size: 10 }, padding: 10, usePointStyle: true, pointStyle: 'circle' } },
+          tooltip: {
+            backgroundColor: 'rgba(16, 42, 33, 0.92)',
+            titleColor: '#F5F2E8',
+            bodyColor: '#B7EBD6',
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: {
+              label: function(context) {
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const pct = ((context.raw / total) * 100).toFixed(1);
+                return `${context.label}: ${context.raw} (${pct}%)`;
+              }
+            }
+          }
+        },
+        elements: {
+          arc: {
+            shadowColor: 'rgba(34, 154, 103, 0.25)',
+            shadowBlur: 15,
+            shadowOffsetY: 5
+          }
+        },
+        animation: { animateRotate: true, duration: 1000, easing: 'easeOutQuart' }
+      }
+    });
+  }
+
+  // ============================================================
+  // DOUGHNUT CHART - Métodos de Pago
+  // ============================================================
+  const ctxMetodos = document.getElementById('graficaMetodosPago');
+  if (ctxMetodos) {
+    const gMetodos = ctxMetodos.getContext('2d');
+    const metodosData = {{ metodos_pago|tojson }};
+    const labels = Object.keys(metodosData);
+    const data = Object.values(metodosData);
+
+    const metodoColors = ['#24A86B', '#26A3C4', '#68A832', '#2DB37A', '#27A4B0'];
+    const metodoGradients = metodoColors.slice(0, labels.length).map((c, i) => {
+      const gr = gMetodos.createRadialGradient(0, 0, 0, 0, 0, 80);
+      gr.addColorStop(0, c + 'CC');
+      gr.addColorStop(1, c);
+      return gr;
+    });
+
+    new Chart(ctxMetodos, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: metodoGradients,
+          borderWidth: 0,
+          borderRadius: 6,
+          spacing: 3,
+          cutout: '65%',
+          weight: 0.5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#144734', font: { size: 9 }, padding: 6, usePointStyle: true, pointStyle: 'circle' } },
+          tooltip: {
+            backgroundColor: 'rgba(16, 42, 33, 0.92)',
+            titleColor: '#F5F2E8',
+            bodyColor: '#B7EBD6',
+            padding: 8,
+            cornerRadius: 8,
+            callbacks: {
+              label: function(context) {
+                return `${context.label}: ${context.raw}%`;
+              }
+            }
+          }
+        },
+        elements: {
+          arc: {
+            shadowColor: 'rgba(34, 154, 103, 0.2)',
+            shadowBlur: 10,
+            shadowOffsetY: 3
+          }
+        },
+        animation: { animateRotate: true, duration: 800, easing: 'easeOutQuart' }
+      }
+    });
+  }
+</script>
 {% endblock %}

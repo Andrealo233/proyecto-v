@@ -15,14 +15,14 @@
       <div class="d-flex align-items-center gap-3">
         <img src="{{ url_for('static', filename='img/logo.ico') }}" alt="Logo VeredalApp" class="logo-grande">
         <div>
-          <h4 class="mb-0 fw-bold text-success">VeredalApp</h4>
-          <small class="text-muted">Gesti&#243;n del agua veredal y organizaciones comunitarias &#183; Antioquia</small>
+          <h4 class="mb-0 fw-bold" style="color: #135E42;">VeredalApp</h4>
+          <small style="color: #1F7A58;">Gestión del agua veredal y organizaciones comunitarias · Antioquia</small>
         </div>
       </div>
 
       <div class="d-flex align-items-center gap-2">
-        <span class="badge badge-user px-3 py-2 rounded-pill">
-          👤 {{ session.get('usuario', 'Ana Torres &#183; Administradora') }}
+        <span class="badge badge-user px-3 py-2 rounded-pill" style="background: rgba(255, 255, 255, 0.65); color: #135E42; border: 1px solid rgba(19, 94, 66, 0.15);">
+          👤 {{ session.get('usuario', 'Ana Torres · Administradora') }}
         </span>
         <a href="/login" class="btn btn-outline-success btn-sm rounded-pill">🔑 Acceso</a>
         <a href="/logout" class="btn btn-danger btn-sm rounded-pill">🚪 Salir</a>
@@ -34,9 +34,9 @@
     <div class="container-fluid">
       <ul class="nav flex-wrap gap-2">
         <li class="nav-item"><a class="nav-link {% if request.path in ['/', '/dashboard'] %}active{% endif %}" href="/dashboard">📊 Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link {% if request.path == '/productos' %}active{% endif %}" href="/productos">👥 Asociados / Productos</a></li>
-        <li class="nav-item"><a class="nav-link {% if request.path == '/agua' %}active{% endif %}" href="/agua">💧 Gesti&#243;n del Agua</a></li>
-        <li class="nav-item"><a class="nav-link {% if request.path == '/facturacion' %}active{% endif %}" href="/facturacion">🧾 Facturaci&#243;n y Pagos</a></li>
+        <li class="nav-item"><a class="nav-link {% if request.path in ['/productos', '/asociados'] %}active{% endif %}" href="/productos">👥 Asociados / Productos</a></li>
+        <li class="nav-item"><a class="nav-link {% if request.path == '/agua' %}active{% endif %}" href="/agua">💧 Gestión del Agua</a></li>
+        <li class="nav-item"><a class="nav-link {% if request.path == '/facturacion' %}active{% endif %}" href="/facturacion">🧾 Facturación y Pagos</a></li>
         <li class="nav-item"><a class="nav-link {% if request.path == '/pqrs' %}active{% endif %}" href="/pqrs">💬 Sistema PQRS</a></li>
       </ul>
     </div>

@@ -2,21 +2,443 @@
 {% block title %}Sistema PQRS{% endblock %}
 {% block content %}
 <div class="modulo-card">
-  <h5 class="fw-bold text-success mb-3">💬 Sistema PQRS — Peticiones, Quejas y Reclamos</h5>
-  <form method="POST" class="row g-2 mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <h5 class="fw-bold mb-0" style="color: var(--title-dark);">💬 Sistema PQRS — Peticiones, Quejas y Reclamos</h5>
+    <button class="btn btn-verde" data-bs-toggle="modal" data-bs-target="#modalNuevaPQRS">+ Radicar PQRS</button>
+  </div>
+
+  <!-- KPIs -->
+  <div class="row g-3 mb-4">
     <div class="col-md-3">
-      <select name="tipo" class="form-select"><option>Petición</option><option>Queja</option><option>Reclamo</option></select>
+      <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #D6F1F8 0%, #EAF8FC 100%); border-color: #26A3C4;">
+        <small class="text-muted d-block">ABIERTOS</small>
+        <h3 class="fw-bold mb-0" style="color: #26A3C4;">{{ kpis.abiertos }}</h3>
+      </div>
     </div>
-    <div class="col-md-7"><input type="text" name="asunto" class="form-control" placeholder="Describe tu solicitud o daño..." required></div>
-    <div class="col-md-2"><button type="submit" class="btn btn-verde w-100">+ Radicar</button></div>
-  </form>
-  <table class="table">
-    <thead><tr><th>Código</th><th>Tipo</th><th>Asunto</th><th>Estado</th></tr></thead>
-    <tbody>
-      {% for p in pqrs %}
-      <tr><td class="fw-bold">{{ p.codigo }}</td><td>{{ p.tipo }}</td><td>{{ p.asunto }}</td><td><span class="badge {% if p.estado == 'En proceso' %}bg-warning{% elif p.estado == 'Resuelto' %}bg-success{% else %}bg-info{% endif %}">{{ p.estado }}</span></td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <div class="col-md-3">
+      <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #E2F3CF 0%, #F1F9E6 100%); border-color: #68A832;">
+        <small class="text-muted d-block">EN PROCESO</small>
+        <h3 class="fw-bold mb-0" style="color: #68A832;">{{ kpis.en_proceso }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #CFF2E1 0%, #E7F9F0 100%); border-color: #24A86B;">
+        <small class="text-muted d-block">RESUELTOS</small>
+        <h3 class="fw-bold mb-0" style="color: #24A86B;">{{ kpis.resueltos }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #FCE6DF 0%, #FEF2EE 100%); border-color: #E86B58;">
+        <small class="text-muted d-block">TOTAL</small>
+        <h3 class="fw-bold mb-0" style="color: #E86B58;">{{ kpis.total }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="section-card h-100">
+        <h6 class="fw-bold mb-3" style="color: var(--ink-forest);">PQRS por Categoría</h6>
+        <div class="chart-wrapper" style="min-height: 280px; max-height: 280px;">
+          <canvas id="graficaPQRSTipo"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="section-card h-100">
+        <h6 class="fw-bold mb-3" style="color: var(--ink-forest);">PQRS por Estado</h6>
+        <div class="chart-wrapper" style="min-height: 280px; max-height: 280px;">
+          <canvas id="graficaPQRSEstado"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional Charts Row -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="section-card h-100">
+        <h6 class="fw-bold mb-3" style="color: var(--ink-forest);">PQRS por Sector</h6>
+        <div class="chart-wrapper" style="min-height: 250px; max-height: 250px;">
+          <canvas id="graficaPQRSSector"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="section-card h-100">
+        <h6 class="fw-bold mb-3" style="color: var(--ink-forest);">PQRS por Prioridad</h6>
+        <div class="chart-wrapper" style="min-height: 250px; max-height: 250px;">
+          <canvas id="graficaPQRSPrioridad"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de PQRS -->
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead><tr><th>Código</th><th>Tipo</th><th>Asunto</th><th>Sector</th><th>Prioridad</th><th>Fecha</th><th>Estado</th></tr></thead>
+      <tbody>
+        {% for p in pqrs %}
+        <tr>
+          <td class="fw-bold">{{ p.codigo }}</td>
+          <td><span class="badge bg-info">{{ p.tipo }}</span></td>
+          <td>{{ p.asunto }}</td>
+          <td><span class="badge bg-success bg-opacity-10">{{ p.sector }}</span></td>
+          <td>
+            {% if p.prioridad == 'Crítica' %}
+              <span class="badge bg-danger">{{ p.prioridad }}</span>
+            {% elif p.prioridad == 'Alta' %}
+              <span class="badge bg-warning text-dark">{{ p.prioridad }}</span>
+            {% elif p.prioridad == 'Media' %}
+              <span class="badge bg-info">{{ p.prioridad }}</span>
+            {% else %}
+              <span class="badge bg-success bg-opacity-10">{{ p.prioridad }}</span>
+            {% endif %}
+          </td>
+          <td>{{ p.fecha }}</td>
+          <td>
+            {% if p.estado == 'Resuelto' %}
+              <span class="badge bg-success">{{ p.estado }}</span>
+            {% elif p.estado == 'En proceso' %}
+              <span class="badge bg-warning text-dark">{{ p.estado }}</span>
+            {% else %}
+              <span class="badge bg-info">{{ p.estado }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
+
+<!-- Modal Nueva PQRS -->
+<div class="modal fade" id="modalNuevaPQRS" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="background: var(--glass-mint); border: 1px solid var(--glass-border); border-radius: 16px;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--glass-border);">
+        <h5 class="modal-title fw-bold" style="color: var(--ink-forest);">📝 Radicar Nueva PQRS</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" class="p-4">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label">Tipo *</label>
+            <select name="tipo" class="form-select" required>
+              <option value="Petición">Petición</option>
+              <option value="Queja">Queja</option>
+              <option value="Reclamo">Reclamo</option>
+              <option value="Solicitud de Reparación">Solicitud de Reparación</option>
+            </select>
+          </div>
+          <div class="col-md-9">
+            <label class="form-label">Asunto *</label>
+            <input type="text" name="asunto" class="form-control" placeholder="Describe tu solicitud o daño..." required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Sector</label>
+            <select name="sector" class="form-select">
+              <option value="">Seleccionar...</option>
+              <option value="El Roble">El Roble</option>
+              <option value="La Loma">La Loma</option>
+              <option value="San José">San José</option>
+              <option value="El Mirador">El Mirador</option>
+              <option value="Nueva Esperanza">Nueva Esperanza</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Prioridad</label>
+            <select name="prioridad" class="form-select">
+              <option value="Baja">Baja</option>
+              <option value="Media" selected>Media</option>
+              <option value="Alta">Alta</option>
+              <option value="Crítica">Crítica</option>
+            </select>
+          </div>
+        </div>
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-verde">Radicar PQRS</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  // ============================================================
+  // DONUT CHART - PQRS por Tipo
+  // ============================================================
+  const ctxTipo = document.getElementById('graficaPQRSTipo');
+  if (ctxTipo) {
+    const gTipo = ctxTipo.getContext('2d');
+    const tipoData = {{ por_tipo|tojson }};
+    const labels = Object.keys(tipoData);
+    const data = Object.values(tipoData);
+
+    const tipoColors = ['#24A86B', '#26A3C4', '#E86B58', '#68A832'];
+    const tipoGradients = tipoColors.slice(0, labels.length).map((c) => {
+      const gr = gTipo.createRadialGradient(0, 0, 0, 0, 0, 120);
+      gr.addColorStop(0, c + 'CC');
+      gr.addColorStop(1, c);
+      return gr;
+    });
+
+    new Chart(ctxTipo, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: tipoGradients,
+          borderWidth: 0,
+          borderRadius: 8,
+          spacing: 4,
+          cutout: '60%',
+          weight: 0.6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#144734', font: { size: 10 }, padding: 10, usePointStyle: true, pointStyle: 'circle' } },
+          tooltip: {
+            backgroundColor: 'rgba(16, 42, 33, 0.92)',
+            titleColor: '#F5F2E8',
+            bodyColor: '#B7EBD6',
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: {
+              label: function(context) {
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const pct = ((context.raw / total) * 100).toFixed(1);
+                return `${context.label}: ${context.raw} (${pct}%)`;
+              }
+            }
+          }
+        },
+        elements: {
+          arc: {
+            shadowColor: 'rgba(34, 154, 103, 0.25)',
+            shadowBlur: 15,
+            shadowOffsetY: 5
+          }
+        },
+        animation: { animateRotate: true, duration: 1000, easing: 'easeOutQuart' }
+      }
+    });
+  }
+
+  // ============================================================
+  // DONUT CHART - PQRS por Estado
+  // ============================================================
+  const ctxEstado = document.getElementById('graficaPQRSEstado');
+  if (ctxEstado) {
+    const gEstado = ctxEstado.getContext('2d');
+    const estadoData = {{ por_estado|tojson }};
+    const labels = Object.keys(estadoData);
+    const data = Object.values(estadoData);
+
+    const estadoColors = {
+      'Pendiente': '#26A3C4',
+      'En proceso': '#F4A261',
+      'Resuelto': '#24A86B'
+    };
+    const estadoGradients = labels.map(l => {
+      const c = estadoColors[l] || '#24A86B';
+      const gr = gEstado.createRadialGradient(0, 0, 0, 0, 0, 120);
+      gr.addColorStop(0, c + 'CC');
+      gr.addColorStop(1, c);
+      return gr;
+    });
+
+    new Chart(ctxEstado, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: estadoGradients,
+          borderWidth: 0,
+          borderRadius: 8,
+          spacing: 4,
+          cutout: '60%',
+          weight: 0.6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#144734', font: { size: 10 }, padding: 10, usePointStyle: true, pointStyle: 'circle' } },
+          tooltip: {
+            backgroundColor: 'rgba(16, 42, 33, 0.92)',
+            titleColor: '#F5F2E8',
+            bodyColor: '#B7EBD6',
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: {
+              label: function(context) {
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const pct = ((context.raw / total) * 100).toFixed(1);
+                return `${context.label}: ${context.raw} (${pct}%)`;
+              }
+            }
+          }
+        },
+        elements: {
+          arc: {
+            shadowColor: 'rgba(34, 154, 103, 0.25)',
+            shadowBlur: 15,
+            shadowOffsetY: 5
+          }
+        },
+        animation: { animateRotate: true, duration: 1000, easing: 'easeOutQuart' }
+      }
+    });
+  }
+
+  // ============================================================
+  // HORIZONTAL BAR CHART - PQRS por Sector
+  // ============================================================
+  const ctxSector = document.getElementById('graficaPQRSSector');
+  if (ctxSector) {
+    const gSector = ctxSector.getContext('2d');
+    const sectorData = {{ por_sector|tojson }};
+    const labels = Object.keys(sectorData);
+    const data = Object.values(sectorData);
+
+    const sectorColors = [
+      { dark: '#0D5A3A', light: '#2EA85D' },
+      { dark: '#0D4A6B', light: '#2A9FD8' },
+      { dark: '#166B4A', light: '#34C759' },
+      { dark: '#0B4D2E', light: '#20BF55' },
+      { dark: '#145E3D', light: '#30D158' }
+    ];
+
+    const sectorGradients = sectorColors.slice(0, labels.length).map(({ dark, light }) => {
+      const gr = gSector.createLinearGradient(0, 0, 250, 0);
+      gr.addColorStop(0, dark);
+      gr.addColorStop(1, light);
+      return gr;
+    });
+
+    new Chart(ctxSector, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Casos',
+          data: data,
+          backgroundColor: sectorGradients,
+          borderRadius: 8,
+          borderWidth: 0,
+          borderSkipped: false,
+          indexAxis: 'y',
+          barPercentage: 0.7,
+          categoryPercentage: 0.6,
+          shadowColor: 'rgba(34, 154, 103, 0.25)',
+          shadowBlur: 12,
+          shadowOffsetX: 4,
+          shadowOffsetY: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(16, 42, 33, 0.92)',
+            titleColor: '#F5F2E8',
+            bodyColor: '#B7EBD6',
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw} casos` }
+          }
+        },
+        scales: {
+          x: { beginAtZero: true, grid: { color: 'rgba(34, 154, 103, 0.06)' }, ticks: { color: '#144734', font: { size: 10 } } },
+          y: { grid: { display: false }, ticks: { color: '#144734', font: { size: 10 } } }
+        },
+        animation: { duration: 1000, easing: 'easeOutQuart' }
+      }
+    });
+  }
+
+  // ============================================================
+  // DONUT CHART - PQRS por Prioridad
+  // ============================================================
+  const ctxPrioridad = document.getElementById('graficaPQRSPrioridad');
+  if (ctxPrioridad) {
+    const gPrioridad = ctxPrioridad.getContext('2d');
+    const prioridadData = {{ por_prioridad|tojson }};
+    const labels = Object.keys(prioridadData);
+    const data = Object.values(prioridadData);
+
+    const prioridadColors = {
+      'Crítica': '#DC2626',
+      'Alta': '#E86B58',
+      'Media': '#F4A261',
+      'Baja': '#24A86B'
+    };
+    const prioridadGradients = labels.map(l => {
+      const c = prioridadColors[l] || '#24A86B';
+      const gr = gPrioridad.createRadialGradient(0, 0, 0, 0, 0, 100);
+      gr.addColorStop(0, c + 'CC');
+      gr.addColorStop(1, c);
+      return gr;
+    });
+
+    new Chart(ctxPrioridad, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: prioridadGradients,
+          borderWidth: 0,
+          borderRadius: 8,
+          spacing: 4,
+          cutout: '60%',
+          weight: 0.6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#144734', font: { size: 10 }, padding: 10, usePointStyle: true, pointStyle: 'circle' } },
+          tooltip: {
+            backgroundColor: 'rgba(16, 42, 33, 0.92)',
+            titleColor: '#F5F2E8',
+            bodyColor: '#B7EBD6',
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: {
+              label: function(context) {
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const pct = ((context.raw / total) * 100).toFixed(1);
+                return `${context.label}: ${context.raw} (${pct}%)`;
+              }
+            }
+          }
+        },
+        elements: {
+          arc: {
+            shadowColor: 'rgba(34, 154, 103, 0.25)',
+            shadowBlur: 15,
+            shadowOffsetY: 5
+          }
+        },
+        animation: { animateRotate: true, duration: 1000, easing: 'easeOutQuart' }
+      }
+    });
+  }
+</script>
 {% endblock %}
