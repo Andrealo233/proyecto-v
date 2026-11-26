@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -16,12 +16,14 @@
         <img src="{{ url_for('static', filename='img/logo.ico') }}" alt="Logo VeredalApp" class="logo-grande">
         <div>
           <h4 class="mb-0 fw-bold text-success">VeredalApp</h4>
-          <small class="text-muted">Gestión del agua veredal y organizaciones comunitarias · Antioquia</small>
+          <small class="text-muted">Gesti&#243;n del agua veredal y organizaciones comunitarias &#183; Antioquia</small>
         </div>
       </div>
 
       <div class="d-flex align-items-center gap-2">
-        <span class="badge px-3 py-2 rounded-pill" style="background:#E8F3EE;color:#14532D;border:1px solid #bbf7d0;">👤 {{ session.get('usuario', 'Ana Torres · Administradora') }}</span>
+        <span class="badge badge-user px-3 py-2 rounded-pill">
+          👤 {{ session.get('usuario', 'Ana Torres &#183; Administradora') }}
+        </span>
         <a href="/login" class="btn btn-outline-success btn-sm rounded-pill">🔑 Acceso</a>
         <a href="/logout" class="btn btn-danger btn-sm rounded-pill">🚪 Salir</a>
       </div>
@@ -33,8 +35,8 @@
       <ul class="nav flex-wrap gap-2">
         <li class="nav-item"><a class="nav-link {% if request.path in ['/', '/dashboard'] %}active{% endif %}" href="/dashboard">📊 Dashboard</a></li>
         <li class="nav-item"><a class="nav-link {% if request.path == '/productos' %}active{% endif %}" href="/productos">👥 Asociados / Productos</a></li>
-        <li class="nav-item"><a class="nav-link {% if request.path == '/agua' %}active{% endif %}" href="/agua">💧 Gestión del Agua</a></li>
-        <li class="nav-item"><a class="nav-link {% if request.path == '/facturacion' %}active{% endif %}" href="/facturacion">🧾 Facturación y Pagos</a></li>
+        <li class="nav-item"><a class="nav-link {% if request.path == '/agua' %}active{% endif %}" href="/agua">💧 Gesti&#243;n del Agua</a></li>
+        <li class="nav-item"><a class="nav-link {% if request.path == '/facturacion' %}active{% endif %}" href="/facturacion">🧾 Facturaci&#243;n y Pagos</a></li>
         <li class="nav-item"><a class="nav-link {% if request.path == '/pqrs' %}active{% endif %}" href="/pqrs">💬 Sistema PQRS</a></li>
       </ul>
     </div>
