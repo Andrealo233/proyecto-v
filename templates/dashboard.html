@@ -4,29 +4,29 @@
 <div class="dashboard-container">
   <!-- KPI Cards Row -->
   <div class="kpi-row">
-    <div class="kpi-card">
-      <div class="kpi-border" style="background: #1E88A8;"></div>
+    <div class="kpi-card usuarios">
+      <div class="kpi-border"></div>
       <div class="kpi-content">
         <small class="kpi-label">USUARIOS</small>
         <h4 class="kpi-value fw-bold mb-0">1.254</h4>
       </div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-border" style="background: #1B7A43;"></div>
+    <div class="kpi-card servicios">
+      <div class="kpi-border"></div>
       <div class="kpi-content">
         <small class="kpi-label">SERVICIOS ACTIVOS</small>
         <h4 class="kpi-value fw-bold mb-0">412</h4>
       </div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-border" style="background: #2E8B57;"></div>
+    <div class="kpi-card recaudo">
+      <div class="kpi-border"></div>
       <div class="kpi-content">
         <small class="kpi-label">RECAUDO JULIO</small>
         <h4 class="kpi-value fw-bold mb-0">$12.5M</h4>
       </div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-border" style="background: #E05A47;"></div>
+    <div class="kpi-card pqrs">
+      <div class="kpi-border"></div>
       <div class="kpi-content">
         <small class="kpi-label">PQRS PENDIENTES</small>
         <h4 class="kpi-value fw-bold mb-0">18</h4>
@@ -38,9 +38,31 @@
   <div class="dashboard-row">
     <!-- Left: Bar Chart (60%) -->
     <div class="chart-section">
-      <div class="section-card">
+      <div class="chart-card">
         <h5 class="section-title">Ventas de instalaci&#243;n</h5>
-        <canvas id="graficaVentasInstalacion" height="200"></canvas>
+        <div class="chart-wrapper">
+          <canvas id="graficaVentasInstalacion"></canvas>
+        </div>
+        <div class="chart-table-wrapper">
+          <table class="chart-table">
+            <thead>
+              <tr>
+                <th>Mes</th>
+                <th>Ventas</th>
+                <th>Variaci&#243;n</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Ene</td><td>850</td><td class="text-success">+12%</td></tr>
+              <tr><td>Feb</td><td>920</td><td class="text-success">+8%</td></tr>
+              <tr><td>Mar</td><td>780</td><td class="text-danger">-15%</td></tr>
+              <tr><td>Abr</td><td>1.100</td><td class="text-success">+41%</td></tr>
+              <tr><td>May</td><td>950</td><td class="text-danger">-14%</td></tr>
+              <tr><td>Jun</td><td>1.020</td><td class="text-success">+7%</td></tr>
+              <tr><td>Jul</td><td>1.150</td><td class="text-success">+13%</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -50,37 +72,37 @@
         <h5 class="section-title">Actividad Reciente</h5>
         <div class="activity-list">
           <div class="activity-item">
-            <span class="activity-icon bg-success-subtle text-success">💰</span>
+            <span class="activity-icon success">💰</span>
             <div class="activity-details">
-              <span class="activity-title">Pago recibido</span>
+              <span class="activity-title"><span class="status-dot success"></span>Pago recibido</span>
               <span class="activity-meta">Juan P&#233;rez - $45.000 - Hace 15 min</span>
             </div>
           </div>
           <div class="activity-item">
-            <span class="activity-icon bg-warning-subtle text-warning">⚡</span>
+            <span class="activity-icon warning">⚡</span>
             <div class="activity-details">
-              <span class="activity-title">Corte programado</span>
+              <span class="activity-title"><span class="status-dot warning"></span>Corte programado</span>
               <span class="activity-meta">Sector 3 - Ma&#241;ana 8:00 AM</span>
             </div>
           </div>
           <div class="activity-item">
-            <span class="activity-icon bg-danger-subtle text-danger">🚨</span>
+            <span class="activity-icon danger">🚨</span>
             <div class="activity-details">
-              <span class="activity-title">PQRS Urgente</span>
+              <span class="activity-title"><span class="status-dot warning"></span>PQRS Urgente</span>
               <span class="activity-meta">Fuga en acueducto veredal - Sin resolver</span>
             </div>
           </div>
           <div class="activity-item">
-            <span class="activity-icon bg-info-subtle text-info">📋</span>
+            <span class="activity-icon info">📋</span>
             <div class="activity-details">
-              <span class="activity-title">Nueva solicitud</span>
+              <span class="activity-title"><span class="status-dot info"></span>Nueva solicitud</span>
               <span class="activity-meta">Mar&#237;a L&#243;pez - Cambio de medidor</span>
             </div>
           </div>
           <div class="activity-item">
-            <span class="activity-icon bg-success-subtle text-success">💰</span>
+            <span class="activity-icon success">💰</span>
             <div class="activity-details">
-              <span class="activity-title">Pago recibido</span>
+              <span class="activity-title"><span class="status-dot success"></span>Pago recibido</span>
               <span class="activity-meta">Carlos Ruiz - $38.500 - Hace 1 hora</span>
             </div>
           </div>
@@ -94,38 +116,44 @@
 <script>
   const ctx1 = document.getElementById('graficaVentasInstalacion');
   const g1 = ctx1.getContext('2d');
-  const colors1 = ['#1d4ed8','#3730a3','#5b21b6','#6b21a8','#b45309','#c2410c','#9f1239'];
+  const colors1 = ['#1E88A8', '#1B7A43', '#269B63', '#135E3D', '#1E88A8', '#1B7A43', '#269B63'];
   const grads1 = colors1.map(c => {
-    const gr = g1.createLinearGradient(0,0,0,ctx1.height);
+    const gr = g1.createLinearGradient(0, 0, 0, 280);
     gr.addColorStop(0, c);
     gr.addColorStop(1, c + '55');
     return gr;
   });
   new Chart(ctx1, {
     type: 'bar',
-    data: { labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'], datasets: [{ label: 'Ventas de instalaci&#243;n', data: [850, 920, 780, 1100, 950, 1020, 1150], backgroundColor: grads1, borderRadius: 6 }] },
+    data: { 
+      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'], 
+      datasets: [{ 
+        label: 'Ventas de instalaci&#243;n', 
+        data: [850, 920, 780, 1100, 950, 1020, 1150], 
+        backgroundColor: grads1, 
+        borderRadius: 8,
+        borderWidth: 0,
+        borderSkipped: false
+      }] 
+    },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      plugins: { 
+        legend: { display: false } 
+      },
       scales: {
-        y: { beginAtZero: true, grid: { color: 'rgba(20, 108, 56, 0.08)' } },
-        x: { grid: { display: false } }
+        y: { 
+          beginAtZero: true, 
+          grid: { color: 'rgba(16, 42, 33, 0.06)' },
+          ticks: { color: '#102A21', font: { size: 11 } }
+        },
+        x: { 
+          grid: { display: false },
+          ticks: { color: '#102A21', font: { size: 11 } }
+        }
       }
     }
-  });
-  const ctx2 = document.getElementById('graficaServicios');
-  const g2 = ctx2.getContext('2d');
-  const colors2 = ['#1d4ed8', '#b45309', '#9f1239'];
-  const grads2 = colors2.map(c => {
-    const gr = g2.createRadialGradient(ctx2.width/2, ctx2.height/2, 0, ctx2.width/2, ctx2.height/2, ctx2.width/2);
-    gr.addColorStop(0, c);
-    gr.addColorStop(1, c + '66');
-    return gr;
-  });
-  new Chart(ctx2, {
-    type: 'doughnut',
-    data: { labels: ['Activos', 'Suspendidos', 'Revisi&#243;n'], datasets: [{ data: [380, 25, 7], backgroundColor: grads2 }] }
   });
 </script>
 {% endblock %}

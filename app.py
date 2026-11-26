@@ -8,21 +8,25 @@ app.secret_key = 'clave_secreta_veredal_antioquia'
 
 DB_AVAILABLE = False
 
+DB_CONFIG = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': '1234',
+    'database': 'veredal_db',
+}
+
+
 def get_db():
     global DB_AVAILABLE
     try:
-        conn = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password='',          # Coloca tu contraseña de MySQL si tienes una
-            database='veredal_db'
-        )
+        conn = mysql.connector.connect(**DB_CONFIG)
         DB_AVAILABLE = True
         return conn
-    except Error as e:
+    except Exception as e:
         DB_AVAILABLE = False
         print(f"Database connection failed: {e}")
         return None
+
 
 def get_db_or_fallback():
     db = get_db()
@@ -30,10 +34,12 @@ def get_db_or_fallback():
         flash('Base de datos no disponible. Funcionando en modo demostración.', 'warning')
     return db
 
+
 @app.route('/')
 @app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -48,24 +54,36 @@ def login():
             return redirect(url_for('dashboard'))
         return render_template('acceso.html', recientes=recientes)
 
-    cursor = db.cursor(dictionary=True)
-    if request.method == 'POST':
-        usuario = request.form['usuario']
-        clave = request.form['clave']
-        cursor.execute("SELECT * FROM usuarios WHERE (nombre=%s OR documento=%s) AND clave=%s", (usuario, usuario, clave))
-        user = cursor.fetchone()
-        if user:
-            session['usuario'] = user['nombre']
-            cursor.close()
-            db.close()
+    try:
+        cursor = db.cursor(dictionary=True)
+        if request.method == 'POST':
+            usuario = request.form['usuario']
+            clave = request.form['clave']
+            cursor.execute("SELECT * FROM usuarios WHERE (nombre=%s OR documento=%s) AND clave=%s", (usuario, usuario, clave))
+            user = cursor.fetchone()
+            if user:
+                session['usuario'] = user['nombre']
+                cursor.close()
+                db.close()
+                return redirect(url_for('dashboard'))
+            else:
+                flash('Usuario o contraseña incorrectos', 'error')
+        cursor.execute("SELECT nombre, documento FROM usuarios ORDER BY id DESC LIMIT 4")
+        recientes = cursor.fetchall()
+        cursor.close()
+        db.close()
+        return render_template('acceso.html', recientes=recientes)
+    except Exception as e:
+        print(f"Login fallback: {e}")
+        recientes = [
+            {'nombre': 'Juan Pérez', 'documento': '1.234.567.890'},
+            {'nombre': 'María López', 'documento': '1.098.765.432'},
+        ]
+        if request.method == 'POST':
+            session['usuario'] = request.form.get('usuario', 'Invitado')
             return redirect(url_for('dashboard'))
-        else:
-            flash('Usuario o contraseña incorrectos', 'error')
-    cursor.execute("SELECT nombre, documento FROM usuarios ORDER BY id DESC LIMIT 4")
-    recientes = cursor.fetchall()
-    cursor.close()
-    db.close()
-    return render_template('acceso.html', recientes=recientes)
+        return render_template('acceso.html', recientes=recientes)
+
 
 @app.route('/registro', methods=['POST'])
 def registro():
@@ -80,30 +98,38 @@ def registro():
         flash('Registro exitoso (modo demo)', 'success')
         return redirect(url_for('dashboard'))
 
-    cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM usuarios WHERE documento=%s OR nombre=%s", (documento, nombre))
-    existente = cursor.fetchone()
+    try:
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM usuarios WHERE documento=%s OR nombre=%s", (documento, nombre))
+        existente = cursor.fetchone()
 
-    if existente:
-        flash(f"La persona {existente['nombre']} (Doc: {existente['documento']}) ya está registrada.", 'warning')
-    else:
-        cursor.execute("INSERT INTO usuarios (nombre, documento, telefono, clave) VALUES (%s, %s, %s, %s)",
-                       (nombre, documento, telefono, clave))
-        db.commit()
-        session['usuario'] = nombre
-        flash('Registro exitoso', 'success')
+        if existente:
+            flash(f"La persona {existente['nombre']} (Doc: {existente['documento']}) ya está registrada.", 'warning')
+        else:
+            cursor.execute("INSERT INTO usuarios (nombre, documento, telefono, clave) VALUES (%s, %s, %s, %s)",
+                           (nombre, documento, telefono, clave))
+            db.commit()
+            session['usuario'] = nombre
+            flash('Registro exitoso', 'success')
+            cursor.close()
+            db.close()
+            return redirect(url_for('dashboard'))
+
         cursor.close()
         db.close()
+        return redirect(url_for('login'))
+    except Exception as e:
+        print(f"Registro fallback: {e}")
+        session['usuario'] = nombre
+        flash('Registro exitoso (modo demo)', 'success')
         return redirect(url_for('dashboard'))
 
-    cursor.close()
-    db.close()
-    return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
     session.pop('usuario', None)
     return redirect(url_for('login'))
+
 
 @app.route('/productos', methods=['GET', 'POST'])
 def productos():
@@ -130,6 +156,7 @@ def productos():
     cursor.close()
     db.close()
     return render_template('productos.html', asociados=lista)
+
 
 @app.route('/agua', methods=['GET', 'POST'])
 def agua():
@@ -158,6 +185,7 @@ def agua():
     db.close()
     return render_template('agua2.html', lecturas=lecturas)
 
+
 @app.route('/facturacion', methods=['GET', 'POST'])
 def facturacion():
     db = get_db_or_fallback()
@@ -180,6 +208,7 @@ def facturacion():
     cursor.close()
     db.close()
     return render_template('facturacion.html', facturas=facturas)
+
 
 @app.route('/pqrs', methods=['GET', 'POST'])
 def pqrs():
@@ -208,6 +237,7 @@ def pqrs():
     cursor.close()
     db.close()
     return render_template('pqrs.html', pqrs=lista_pqrs)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

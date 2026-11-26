@@ -1,15 +1,15 @@
 body {
     background: 
-        radial-gradient(ellipse 80% 50% at 20% 20%, rgba(20, 108, 56, 0.1) 0%, transparent 50%),
-        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
-        linear-gradient(160deg, #f1f6f3 0%, #e6f4ec 30%, #dcfce7 60%, #bbf7d0 100%),
+        radial-gradient(ellipse 80% 50% at 20% 20%, rgba(11, 59, 43, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(22, 109, 140, 0.1) 0%, transparent 50%),
+        linear-gradient(145deg, #B8DFCE 0%, #CBE8DF 45%, #B9DCE6 100%),
         url('../img/fondo.jpeg') no-repeat center center fixed;
     background-size: cover, cover, cover, cover;
     background-blend-mode: overlay, overlay, normal, normal;
     min-height: 100vh;
     margin: 0;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    color: #14532d;
+    color: #102A21;
 }
 
 .smoking-wrapper {
@@ -23,16 +23,16 @@ body {
 }
 
 .login-card {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(241, 246, 243, 0.95) 100%);
+    background: linear-gradient(135deg, rgba(226, 245, 236, 0.85), rgba(212, 238, 232, 0.75));
     backdrop-filter: blur(20px);
-    border: 2px solid #bbf7d0;
+    border: 2px solid rgba(255, 255, 255, 0.55);
     border-radius: 22px;
     width: 100%;
     max-width: 460px;
     padding: 36px;
     box-shadow: 
-        0 16px 48px rgba(20, 108, 56, 0.18),
-        0 4px 16px rgba(20, 108, 56, 0.06),
+        0 16px 48px rgba(15, 61, 46, 0.12),
+        0 4px 16px rgba(15, 61, 46, 0.06),
         inset 0 1px 0 rgba(255, 255, 255, 0.8);
     position: relative;
     overflow: hidden;
@@ -45,7 +45,7 @@ body {
     left: 0;
     right: 0;
     height: 5px;
-    background: linear-gradient(90deg, #146c38 0%, #1b8245 50%, #22c55e 100%);
+    background: linear-gradient(90deg, #0B3B2B 0%, #156B4B 50%, #167D8C 100%);
     border-radius: 22px 22px 0 0;
 }
 
@@ -53,17 +53,18 @@ body {
     width: 92px;
     height: 92px;
     object-fit: contain;
-    border-radius: 16px;
+    border-radius: 50%;
     box-shadow: 
-        0 6px 24px rgba(20, 108, 56, 0.2),
+        0 6px 24px rgba(11, 59, 43, 0.25),
+        0 0 20px rgba(255, 255, 255, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    border: 2px solid #bbf7d0;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(241, 246, 243, 0.95) 100%);
+    border: 4px solid linear-gradient(135deg, #F3EFE4, #DDF2E8);
+    background: linear-gradient(135deg, #F3EFE4, #DDF2E8);
     padding: 6px;
 }
 
 .btn-verde {
-    background: linear-gradient(135deg, #146c38 0%, #1b8245 100%);
+    background: linear-gradient(135deg, #0B3B2B 0%, #156B4B 50%, #167D8C 100%);
     border: none;
     color: #fff;
     font-weight: 600;
@@ -71,7 +72,7 @@ body {
     padding: 14px 28px;
     transition: all 0.25s ease;
     box-shadow: 
-        0 6px 20px rgba(20, 108, 56, 0.3),
+        0 6px 20px rgba(11, 59, 43, 0.35),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
     position: relative;
     overflow: hidden;
@@ -81,17 +82,17 @@ body {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #1b8245 0%, #22c55e 100%);
+    background: linear-gradient(135deg, #156B4B 0%, #167D8C 100%);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
 
 .btn-verde:hover {
-    background: linear-gradient(135deg, #1b8245 0%, #22c55e 100%);
+    background: linear-gradient(135deg, #156B4B 0%, #167D8C 100%);
     color: #fff;
     transform: translateY(-2px);
     box-shadow: 
-        0 10px 28px rgba(20, 108, 56, 0.4),
+        0 10px 28px rgba(11, 59, 43, 0.45),
         inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
@@ -102,7 +103,7 @@ body {
 .btn-verde:active {
     transform: translateY(0);
     box-shadow: 
-        0 3px 10px rgba(20, 108, 56, 0.2),
+        0 3px 10px rgba(11, 59, 43, 0.25),
         inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
@@ -111,28 +112,28 @@ body {
     font-weight: 500;
     padding: 12px 20px;
     transition: all 0.25s ease;
-    color: #166534 !important;
+    color: #102A21 !important;
     background: rgba(255, 255, 255, 0.7) !important;
-    border: 1px solid #bbf7d0;
+    border: 1px solid rgba(255, 255, 255, 0.55);
 }
 
 .nav-pills .nav-link.active {
-    background: linear-gradient(135deg, #146c38 0%, #1b8245 100%) !important;
+    background: linear-gradient(135deg, #0B3B2B 0%, #156B4B 50%, #167D8C 100%) !important;
     color: #fff !important;
-    box-shadow: 0 6px 20px rgba(20, 108, 56, 0.3);
+    box-shadow: 0 6px 20px rgba(11, 59, 43, 0.35);
     border-color: transparent;
 }
 
 .nav-pills .nav-link:not(.active):hover {
-    background: linear-gradient(135deg, rgba(20, 108, 56, 0.08) 0%, rgba(27, 130, 69, 0.05) 100%) !important;
-    color: #146c38 !important;
+    background: linear-gradient(135deg, rgba(226, 245, 236, 0.6), rgba(212, 238, 232, 0.5)) !important;
+    color: #0B3B2B !important;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(20, 108, 56, 0.1);
-    border-color: #86efac;
+    box-shadow: 0 4px 12px rgba(11, 59, 43, 0.12);
+    border-color: rgba(255, 255, 255, 0.8);
 }
 
 .form-control, .form-control-sm {
-    border: 2px solid #bbf7d0;
+    border: 2px solid rgba(255, 255, 255, 0.55);
     border-radius: 10px;
     padding: 12px 16px;
     font-size: 0.95rem;
@@ -141,13 +142,13 @@ body {
 }
 
 .form-control:focus, .form-control-sm:focus {
-    border-color: #1b8245;
-    box-shadow: 0 0 0 4px rgba(20, 108, 56, 0.12);
+    border-color: #156B4B;
+    box-shadow: 0 0 0 4px rgba(21, 107, 75, 0.15);
     background: #fff;
 }
 
 .form-label {
-    color: #166534;
+    color: #102A21;
     font-weight: 600;
     margin-bottom: 6px;
 }
@@ -164,17 +165,17 @@ body {
 }
 
 .badge.bg-success.bg-opacity-10 {
-    background: linear-gradient(135deg, rgba(20, 108, 56, 0.12) 0%, rgba(27, 130, 69, 0.08) 100%) !important;
-    border: 1px solid #bbf7d0;
-    color: #146c38;
+    background: linear-gradient(135deg, rgba(11, 59, 43, 0.12) 0%, rgba(21, 107, 75, 0.08) 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    color: #0B3B2B;
 }
 
 .text-success {
-    color: #146c38 !important;
+    color: #0B3B2B !important;
 }
 
 .text-muted {
-    color: #166534 !important;
+    color: #102A21 !important;
     opacity: 0.8;
 }
 

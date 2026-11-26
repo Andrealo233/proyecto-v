@@ -47,3 +47,23 @@ Transform `templates/dashboard.html` and `static/css/dashboard.css` into a vibra
 
 ## Validation
 - Run the app and verify in the browser that there are zero plain white boxes, the topographic/wave SVG patterns render cleanly, glassmorphic cards show depth over the patterned background, and all text has strong contrast.
+
+Necesito que audites y organices todo el proyecto (app.py, /templates, /static/css, imágenes y la conexión a MySQL) sin borrar absolutamente nada de la información existente, los datos de PADI ni los datos de demostración (fallback). Sigue estos pasos en orden:
+
+1. Respaldo y diagnóstico inicial:
+   - Revisa qué archivos o configuraciones cambiaron hoy entre las 7:00 PM y las 7:52 PM (usa `git status` / `git diff` o revisa fechas de modificación).
+   - No elimines ningún dato de prueba ni información almacenada en la base de datos o en el código.
+
+2. Conexión MySQL y modo demostración (Fallback):
+   - Revisa la conexión a MySQL en `app.py` (soluciona el error `1045 Access denied for user 'root'@'localhost'`).
+   - Mantén un bloque `try / except` robusto en todas las consultas para que, si MySQL no está conectado o falla la contraseña, la aplicación cargue automáticamente toda la información adicional de respaldo (datos de demostración y registros de PADI) para poder presentar la página funcionando al 100%.
+   - Guarda la configuración de la base de datos de forma clara para poder conectarla cuando se necesite.
+
+3. Corrección de rutas y errores de Flask (`Werkzeug BuildError`):
+   - Revisa todas las rutas (`/agua`, `/facturacion`, `/pqrs`, envíos, pedidos, pagos, clientes, panel principal, etc.) y asegúrate de que todos los `url_for()`, `href` y `action` en los HTML coincidan exactamente con los nombres de las funciones en `app.py`.
+   - Verifica que ninguna etiqueta Jinja2 (`{% if %}`, `{% for %}`) o etiqueta HTML quede sin cerrar o fuera de su bucle.
+
+4. Rutas de CSS e Imágenes:
+   - Asegúrate de que todos los templates carguen correctamente los estilos CSS e imágenes usando `{{ url_for('static', filename='...') }}` para que ninguna página se vea desorganizada.
+
+Al finalizar, dame un resumen exacto de qué causó el fallo entre las 7:00 y las 7:52 y confirma que todas las rutas devuelven código 200 sin errores.
