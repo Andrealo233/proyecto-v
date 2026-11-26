@@ -67,3 +67,26 @@ Necesito que audites y organices todo el proyecto (app.py, /templates, /static/c
    - Asegúrate de que todos los templates carguen correctamente los estilos CSS e imágenes usando `{{ url_for('static', filename='...') }}` para que ninguna página se vea desorganizada.
 
 Al finalizar, dame un resumen exacto de qué causó el fallo entre las 7:00 y las 7:52 y confirma que todas las rutas devuelven código 200 sin errores.
+
+# Radial / Multi-Ring Chart Upgrade ("Ventas de instalación") — VeredalApp Dashboard
+
+## Goal
+Replace the current bar chart in `templates/dashboard.html` (and its JS configuration) with a vibrant **3D-style multi-ring radial / circular chart** (inspired by concentric stepped rings) showing **Instalados**, **En proceso**, and **Cancelados**, styled in luminous green and water gradients to match the dashboard's bright palette.
+
+## Tasks
+1. **Chart Type & Structure (`templates/dashboard.html` & chart JS)**:
+   - Replace the existing bar chart with a multi-series **Radial Bar / Concentric Ring Chart** (using Chart.js nested doughnut/polar rings or ApexCharts `radialBar` with rounded caps and subtle drop shadows for a 3D stepped-ring depth effect).
+   - Display 3 clear categories:
+     1. **Instalados** (outer/main ring) — luminous emerald-mint gradient (`#24A86B` to `#52D196`)
+     2. **En proceso** (middle ring) — luminous aqua-water gradient (`#26A3C4` to `#5CE1E6`)
+     3. **Cancelados** (inner ring) — soft warm coral-amber gradient (`#E86B58` to `#F4A261`)
+
+2. **Visual Polish & 3D Depth Effect**:
+   - Add subtle shadows (`shadowBlur`, `shadowOffsetY`) and glossy gradient fills on each ring segment so it has a modern 3D stepped-arc look against the light mint card background (no dark/black background).
+   - Include a clean legend and interactive tooltips showing both the exact count and percentage for **Instalados**, **En proceso**, and **Cancelados**, plus a centered total summary inside the ring.
+
+3. **Keep Layout & Luminous Green Theme Intact**:
+   - Keep the chart inside the left 60% column next to the "Actividad Reciente" panel without altering the rest of the luminous green gradient dashboard.
+
+## Validation
+- Run the app and verify the concentric ring chart renders smoothly with the 3 statuses ("Instalados", "En proceso", "Cancelados"), tooltips work, and colors match the bright green/water dashboard theme.
