@@ -1,11 +1,10 @@
 body {
-    background:
-        radial-gradient(ellipse 80% 50% at 20% 20%, rgba(158, 224, 197, 0.3) 0%, transparent 50%),
-        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(169, 226, 232, 0.25) 0%, transparent 50%),
-        linear-gradient(145deg, #D5F2E6 0%, #E3F6EE 45%, #D4EFF5 100%),
-        url('../img/fondo 1.PNG') no-repeat center center fixed;
-    background-size: cover, cover, cover, cover;
-    background-blend-mode: overlay, overlay, normal, normal;
+    background-image: url('../img/fondo 1.PNG');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: #D5F2E6;
     min-height: 100vh;
     margin: 0;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -15,7 +14,6 @@ body {
 .smoking-wrapper {
     min-height: 100vh;
     background: transparent;
-    backdrop-filter: blur(12px);
     display: flex;
     align-items: center;
     justify-content: center;
