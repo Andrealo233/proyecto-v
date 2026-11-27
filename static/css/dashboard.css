@@ -925,3 +925,14 @@ h4, h5, h6 {
 .modal-backdrop.show {
     opacity: 0.45;
 }
+/* El modal usa .login-card de login.css pero ocupa todo el ancho del diálogo */
+.modal .login-card {
+    max-width: none;
+    width: 100%;
+    border: none;
+    box-shadow: none;
+    background: linear-gradient(135deg, rgba(235, 250, 243, 0.98), rgba(220, 244, 235, 0.96));
+}
+.modal .login-card::before {
+    display: none;
+}
