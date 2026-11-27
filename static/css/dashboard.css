@@ -890,15 +890,37 @@ h4, h5, h6 {
     .badge-user { padding: 6px 12px; font-size: 0.8rem; }
 }
 
-/* Modales opacos para que no se vean negros sobre el backdrop */
+/* Modales con estilo de tarjeta (parecido a acceso.html) */
 .modal-content {
-    background: #EBFAF3 !important;
+    background: linear-gradient(135deg, rgba(235, 250, 243, 0.98), rgba(220, 244, 235, 0.96)) !important;
+    backdrop-filter: blur(20px);
     color: var(--ink-forest) !important;
-    border: 1px solid var(--glass-border) !important;
-    box-shadow: 0 12px 40px rgba(16, 42, 33, 0.25) !important;
+    border: 2px solid rgba(114, 198, 162, 0.5) !important;
+    border-radius: 22px !important;
+    box-shadow:
+        0 16px 48px rgba(34, 154, 103, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+    position: relative;
+    overflow: hidden;
+}
+.modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #9EE0C5 0%, #BBEBD7 50%, #A9E2E8 100%);
+    border-radius: 22px 22px 0 0;
 }
 .modal-header {
     border-bottom: 1px solid var(--glass-border) !important;
+    padding-top: 1.25rem !important;
+}
+.modal .logo-login-grande {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 8px;
 }
 .modal-backdrop.show {
     opacity: 0.45;

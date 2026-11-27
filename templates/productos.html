@@ -115,6 +115,10 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form method="POST" class="p-4">
+        <div class="text-center">
+          <img src="{{ url_for('static', filename='img/logo.ico') }}" alt="Logo" class="logo-login-grande">
+          <h5 class="fw-bold mb-3" style="color: var(--ink-forest);">➕ Nuevo Asociado</h5>
+        </div>
         <div class="row g-3">
           <div class="col-md-6"><label class="form-label">Nombre Completo *</label><input type="text" name="nombre" class="form-control" required></div>
           <div class="col-md-4"><label class="form-label">Documento *</label><input type="text" name="documento" class="form-control" required></div>
