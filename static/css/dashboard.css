@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     /* Luminous Green & Water Palette - NO DARK GREENS, NO FLAT WHITE */
     --luminous-mint: #9EE0C5;
     --luminous-mint-mid: #BBEBD7;
@@ -62,27 +62,14 @@
 body > main {
     position: relative;
     isolation: isolate;
-    background: var(--canvas-gradient);
+    background-image: url("../img/fondo 1.PNG");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     min-height: 100vh;
 }
 
-body > main::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url("../img/fondo 1.PNG");
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    filter: blur(4px);
-    transform: scale(1.08);
-    opacity: 0.6;
-    z-index: -1;
-    pointer-events: none;
-}
+
 
 body {
     background: transparent;
@@ -115,13 +102,9 @@ body {
     height: 76px;
     object-fit: contain;
     border-radius: 50%;
-    box-shadow:
-        0 0 20px rgba(255, 255, 255, 0.4),
-        0 4px 16px rgba(34, 154, 103, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    border: 4px solid var(--logo-badge);
-    background: var(--logo-badge);
+    background: linear-gradient(135deg, #F5F7F2, #E2F4EC);
     padding: 4px;
+    box-shadow: 0 3px 10px rgb(13, 153, 97);
 }
 
 .topbar-veredal h4 {
@@ -143,7 +126,7 @@ body {
 /* ===== NAVIGATION ===== */
 .nav-veredal {
     background: var(--nav-gradient);
-    backdrop-filter: blur(12px);
+    backdrop-filter: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 4px 24px rgba(34, 154, 103, 0.15);
     position: sticky;
@@ -191,7 +174,7 @@ body {
 /* ===== CARDS & CONTAINERS ===== */
 .section-card {
     background: var(--glass-mint);
-    backdrop-filter: blur(10px);
+    backdrop-filter: none;
     border-radius: 16px;
     box-shadow: var(--glass-shadow);
     border: 1px solid var(--glass-border);
@@ -296,7 +279,7 @@ body {
     font-weight: 500;
     padding: 6px 12px;
     border-radius: 20px;
-    backdrop-filter: blur(8px);
+    backdrop-filter: none;
 }
 
 .badge.bg-success {
@@ -584,7 +567,7 @@ h4, h5, h6 {
     display: flex;
     flex-direction: column;
     background: var(--glass-mint);
-    backdrop-filter: blur(10px);
+    backdrop-filter: none;
 }
 
 .kpi-card::after {
@@ -667,7 +650,7 @@ h4, h5, h6 {
 
 .chart-card {
     background: var(--chart-card-bg);
-    backdrop-filter: blur(10px);
+    backdrop-filter: none;
     border-radius: 16px;
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
@@ -714,7 +697,7 @@ h4, h5, h6 {
     gap: 0.5rem;
     padding: 0.5rem 1rem;
     background: var(--glass-mint);
-    backdrop-filter: blur(10px);
+    backdrop-filter: none;
     border-radius: 30px;
     border: 1px solid var(--glass-border);
     box-shadow: 0 2px 8px rgba(34, 154, 103, 0.05);
@@ -795,7 +778,7 @@ h4, h5, h6 {
     gap: 0.75rem;
     padding: 1rem;
     background: var(--glass-mint);
-    backdrop-filter: blur(10px);
+    backdrop-filter: none;
     border-radius: 12px;
     transition: all 0.2s ease;
     border: 1px solid var(--glass-border);
@@ -905,4 +888,18 @@ h4, h5, h6 {
     .topbar-veredal .logo-grande { width: 60px; height: 60px; }
     .topbar-veredal h4 { font-size: 1.1rem; }
     .badge-user { padding: 6px 12px; font-size: 0.8rem; }
+}
+
+/* Modales opacos para que no se vean negros sobre el backdrop */
+.modal-content {
+    background: #EBFAF3 !important;
+    color: var(--ink-forest) !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: 0 12px 40px rgba(16, 42, 33, 0.25) !important;
+}
+.modal-header {
+    border-bottom: 1px solid var(--glass-border) !important;
+}
+.modal-backdrop.show {
+    opacity: 0.45;
 }

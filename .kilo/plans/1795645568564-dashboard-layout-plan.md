@@ -85,3 +85,27 @@ Complete realistic community water utility demonstration (fallback) data, tables
 ## Validation
 - Start the Flask app and visit all 5 navigation tabs (`Dashboard`, `Asociados / Productos`, `Gestión del Agua`, `Facturación y Pagos`, `Sistema PQRS`).
 - Confirm every tab loads with HTTP 200, displays complete demo data, renders luminous green/water charts properly, and has zero empty white spaces or broken links.
+
+# Targeted Header Styling & Sharp Background Image (`1.png`) — VeredalApp
+
+## Goal
+Preserve 100% of the existing charts, dynamic/fallback data, routes, and current page layout without deleting or altering any metrics or graphs. Apply ONLY two targeted visual refinements:
+1. Make the background image `1.png` clearly visible and sharp (remove any blur effects over it).
+2. Apply the luminous light-green gradient + organic wave SVG pattern specifically to the top branding header container (`<div class="container-fluid d-flex flex-wrap align-items-center justify-content-between gap-3">`).
+
+## Tasks
+1. **Keep All Existing Charts & Data Intact**:
+   - Do NOT modify, replace, or remove any existing charts, KPI values, fallback/PADI data, or backend routes.
+
+2. **Sharp, Visible Background Image (`static/img/1.png`)**:
+   - Ensure the main page/body background displays `url('/static/img/1.png')` (or `{{ url_for('static', filename='img/1.png') }}`) clearly (`background-size: cover; background-position: center; background-attachment: fixed;`).
+   - **Remove any `backdrop-filter: blur(...)` or `filter: blur(...)`** from the background and outer overlays so `1.png` looks crisp and sharp—using only a very light translucent green tint (`rgba(227, 246, 238, 0.45)`) if needed so cards and text remain easy to read without blurring the image.
+
+3. **Decorated Luminous Light-Green Header Container**:
+   - Style the top branding bar wrapping `<div class="container-fluid d-flex flex-wrap align-items-center justify-content-between gap-3">` with the luminous water-mint to fresh-leaf gradient and delicate organic wave SVG pattern:
+     - Background: `linear-gradient(120deg, #9EE0C5 0%, #BBEBD7 50%, #A9E2E8 100%)` overlaid with a subtle inline SVG wave/botanical pattern (`opacity: 0.22`).
+     - Style `.logo-grande` inside a soft luminous cream-mint circular badge (`background: linear-gradient(135deg, #F5F7F2, #E2F4EC); border-radius: 50%; padding: 4px; box-shadow: 0 3px 10px rgb(13, 153, 97);`).
+     - Keep the title `"VeredalApp"` in `#135E42`, subtitle in `#1F7A58`, and the user pill (`Ana Torres · Administradora`) in `rgba(255, 255, 255, 0.65)` with `#135E42` text.
+
+## Validation
+- Run the app and confirm in the browser that `1.png` is clearly visible and sharp (no blur), the top header bar shows the decorated light-green gradient with wave pattern, and all existing charts and data remain untouched.
