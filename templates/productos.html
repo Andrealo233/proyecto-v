@@ -4,7 +4,7 @@
 <div class="modulo-card mb-4">
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <h5 class="fw-bold mb-0" style="color: var(--title-dark);">👥 Gestión de Asociados y Servicios</h5>
-    <button class="btn btn-verde" data-bs-toggle="modal" data-bs-target="#modalNuevoAsociado">+ Nuevo Asociado</button>
+    <a class="btn btn-verde" href="{{ url_for('nuevo_asociado') }}">+ Nuevo Asociado</a>
   </div>
 
   <!-- KPIs Row -->
@@ -106,35 +106,6 @@
   </div>
 </div>
 
-<!-- Modal Nuevo Asociado -->
-<div class="modal fade" id="modalNuevoAsociado" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content login-card">
-      <div class="modal-header" style="border-bottom: 1px solid var(--glass-border);">
-        <h5 class="modal-title fw-bold" style="color: var(--ink-forest);">➕ Nuevo Asociado</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form method="POST" class="p-4">
-        <div class="text-center">
-          <img src="{{ url_for('static', filename='img/logo.ico') }}" alt="Logo" class="logo-login-grande">
-          <h5 class="fw-bold mb-3" style="color: var(--ink-forest);">➕ Nuevo Asociado</h5>
-        </div>
-        <div class="row g-3">
-          <div class="col-md-6"><label class="form-label">Nombre Completo *</label><input type="text" name="nombre" class="form-control" required></div>
-          <div class="col-md-4"><label class="form-label">Documento *</label><input type="text" name="documento" class="form-control" required></div>
-          <div class="col-md-2"><label class="form-label">Estrato</label><select name="estrato" class="form-select"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></div>
-          <div class="col-md-4"><label class="form-label">Teléfono</label><input type="text" name="telefono" class="form-control"></div>
-          <div class="col-md-4"><label class="form-label">Vereda</label><select name="vereda" class="form-select"><option value="El Roble">El Roble</option><option value="La Loma">La Loma</option><option value="San José">San José</option><option value="El Mirador">El Mirador</option><option value="Nueva Esperanza">Nueva Esperanza</option></select></div>
-          <div class="col-md-4"><label class="form-label">Tarifa</label><select name="tarifa" class="form-select"><option value="Residencial">Residencial</option><option value="Agrícola">Agrícola</option><option value="Comercial">Comercial</option><option value="Ultrasónico">Ultrasónico</option></select></div>
-        </div>
-        <div class="d-flex justify-content-end gap-2 mt-4">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-verde">Guardar Asociado</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 {% endblock %}
 {% block scripts %}
 <script>

@@ -1,0 +1,14 @@
+USE veredal_db;
+
+ALTER TABLE usuarios MODIFY clave VARCHAR(255) NOT NULL;
+
+CREATE TABLE IF NOT EXISTS publicaciones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(160) NOT NULL,
+    contenido TEXT NOT NULL,
+    activo TINYINT NOT NULL DEFAULT 1,
+    creado_por VARCHAR(100) NOT NULL,
+    creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    actualizado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_publicaciones_inicio (activo, actualizado_en)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

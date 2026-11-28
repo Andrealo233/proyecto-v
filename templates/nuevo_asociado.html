@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeredalApp - Nuevo Asociado</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/logo.ico') }}" type="image/x-icon">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+  <style>.form-card { max-width: 760px; }</style>
+</head>
+<body>
+  <main class="smoking-wrapper">
+    <section class="login-card form-card">
+      <header class="text-center mb-4">
+        <img src="{{ url_for('static', filename='img/logo.ico') }}" alt="Logo de VeredalApp" class="logo-login-grande mb-2">
+        <h1 class="h4 fw-bold text-success mb-1">Nuevo Asociado</h1>
+        <p class="text-muted mb-0">Completa los datos para registrar al asociado.</p>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <form action="{{ url_for('nuevo_asociado') }}" method="POST">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="nombre" class="form-label">Nombre completo *</label>
+            <input id="nombre" type="text" name="nombre" class="form-control" maxlength="120" autocomplete="name" required>
+          </div>
+          <div class="col-md-4">
+            <label for="documento" class="form-label">Documento *</label>
+            <input id="documento" type="text" name="documento" class="form-control" maxlength="30" required>
+          </div>
+          <div class="col-md-2">
+            <label for="estrato" class="form-label">Estrato</label>
+            <select id="estrato" name="estrato" class="form-select">
+              <option value="1">1</option>
+              <option value="2" selected>2</option>
+              <option value="3">3</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label for="telefono" class="form-label">Teléfono</label>
+            <input id="telefono" type="tel" name="telefono" class="form-control" maxlength="30" autocomplete="tel">
+          </div>
+          <div class="col-md-4">
+            <label for="vereda" class="form-label">Vereda</label>
+            <select id="vereda" name="vereda" class="form-select">
+              <option value="">Seleccionar...</option>
+              <option value="El Roble">El Roble</option>
+              <option value="La Loma">La Loma</option>
+              <option value="San José">San José</option>
+              <option value="El Mirador">El Mirador</option>
+              <option value="Nueva Esperanza">Nueva Esperanza</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label for="tarifa" class="form-label">Tipo de servicio</label>
+            <select id="tarifa" name="tarifa" class="form-select">
+              <option value="Residencial">Residencial</option>
+              <option value="Agrícola">Agrícola</option>
+              <option value="Comercial">Comercial</option>
+              <option value="Ultrasónico">Ultrasónico</option>
+            </select>
+          </div>
+        </div>
+        <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mt-4">
+          <a class="btn btn-outline-success" href="{{ url_for('inicio') }}">Volver al inicio</a>
+          <button type="submit" class="btn btn-verde">Guardar asociado</button>
+        </div>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

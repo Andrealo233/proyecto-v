@@ -2,11 +2,15 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import mysql.connector
 from mysql.connector import Error
 import os
+import hmac
+import secrets
+from functools import wraps
 from datetime import datetime, timedelta
 import random
+from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
-app.secret_key = os.environ.get('SECRET_KEY', 'clave_secreta_veredal_antioquia')
+app.secret_key = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
 
 DB_AVAILABLE = False
 
@@ -64,6 +68,44 @@ def close_db(db, cursor=None):
             db.close()
     except Exception:
         pass
+
+
+def missing_fields(*names):
+    """Return a list of required form fields that were not submitted."""
+    return [name for name in names if not request.form.get(name, '').strip()]
+
+
+def verify_password(stored_password, submitted_password):
+    if stored_password.startswith(('scrypt:', 'pbkdf2:')):
+        try:
+            return check_password_hash(stored_password, submitted_password)
+        except ValueError:
+            return False
+    return hmac.compare_digest(stored_password, submitted_password)
+
+
+def demo_login_is_valid(usuario, clave):
+    if not usuario or not clave:
+        return None
+    for account in DEMO_CUENTAS.values():
+        if usuario in (account['nombre'], account['documento']) and verify_password(account['clave'], clave):
+            return account
+    return None
+
+
+def roles_required(*roles):
+    def decorator(view):
+        @wraps(view)
+        def wrapped(*args, **kwargs):
+            if not session.get('usuario'):
+                flash('Inicia sesión para continuar.', 'warning')
+                return redirect(url_for('login'))
+            if session.get('rol') not in roles:
+                flash('No tienes permiso para acceder a esa página.', 'error')
+                return redirect(url_for('inicio'))
+            return view(*args, **kwargs)
+        return wrapped
+    return decorator
 
 
 # ============================================================
@@ -187,13 +229,171 @@ DEMO_ACTIVIDAD_RECIENTE = [
     {'icono': '🔧', 'tipo': 'warning', 'titulo': 'Mantenimiento preventivo', 'detalle': 'Tanque Principal - Limpieza programada sábado', 'estado': 'Programado'},
 ]
 
+DEMO_PUBLICACIONES = [
+    {
+        'id': 1,
+        'titulo': 'Comunicados de la Junta de Acción Comunal',
+        'contenido': 'En este espacio se publicarán los avisos oficiales sobre el servicio de agua y las actividades comunitarias.',
+        'activo': 1,
+        'actualizado_en': 'Información general',
+    },
+]
+
+DEMO_CUENTAS = {}
+
 
 # ============================================================
 # ROUTES
 # ============================================================
 
 @app.route('/')
+def inicio():
+    db = get_db()
+    publicaciones = [post for post in DEMO_PUBLICACIONES if post['activo']]
+    modo_demo = db is None
+    if db is not None:
+        cursor = None
+        try:
+            cursor = db.cursor(dictionary=True)
+            cursor.execute(
+                """SELECT id, titulo, contenido, activo, actualizado_en
+                   FROM publicaciones WHERE activo=1 ORDER BY actualizado_en DESC"""
+            )
+            publicaciones = cursor.fetchall()
+        except Exception as e:
+            print(f"Publicaciones no disponibles: {e}")
+            flash('No se pudieron cargar los comunicados guardados. Revisa la migración de publicaciones.', 'warning')
+            publicaciones = [post for post in DEMO_PUBLICACIONES if post['activo']]
+            modo_demo = True
+        finally:
+            close_db(db, cursor)
+    return render_template('inicio.html', publicaciones=publicaciones, modo_demo=modo_demo)
+
+
+@app.route('/admin/publicaciones', methods=['GET', 'POST'])
+@roles_required('administrador')
+def administrar_publicaciones():
+    if request.method == 'POST':
+        titulo = request.form.get('titulo', '').strip()
+        contenido = request.form.get('contenido', '').strip()
+        publicacion_id = request.form.get('publicacion_id', '').strip()
+        activo = 1 if request.form.get('activo') == '1' else 0
+        if not titulo or not contenido:
+            flash('El título y el contenido son obligatorios.', 'warning')
+            return redirect(url_for('administrar_publicaciones'))
+        if len(titulo) > 160 or len(contenido) > 5000:
+            flash('El título admite hasta 160 caracteres y el comunicado hasta 5000.', 'warning')
+            return redirect(url_for('administrar_publicaciones'))
+
+        if publicacion_id:
+            try:
+                publicacion_id = int(publicacion_id)
+            except ValueError:
+                flash('La publicación seleccionada no es válida.', 'warning')
+                return redirect(url_for('administrar_publicaciones'))
+
+        db = get_db()
+        if db is None:
+            if publicacion_id:
+                post = next((p for p in DEMO_PUBLICACIONES if p['id'] == publicacion_id), None)
+                if post is None:
+                    flash('No se encontró la publicación que intentas editar.', 'warning')
+                    return redirect(url_for('administrar_publicaciones'))
+                post.update(titulo=titulo, contenido=contenido, activo=activo,
+                            actualizado_en=datetime.now().strftime('%Y-%m-%d %H:%M'))
+                flash('Comunicado actualizado en modo demostración.', 'success')
+            else:
+                DEMO_PUBLICACIONES.append({
+                    'id': max((p['id'] for p in DEMO_PUBLICACIONES), default=0) + 1,
+                    'titulo': titulo,
+                    'contenido': contenido,
+                    'activo': activo,
+                    'actualizado_en': datetime.now().strftime('%Y-%m-%d %H:%M'),
+                })
+                flash('Comunicado publicado en modo demostración.', 'success')
+            return redirect(url_for('administrar_publicaciones'))
+
+        cursor = None
+        try:
+            cursor = db.cursor()
+            if publicacion_id:
+                cursor.execute("SELECT id FROM publicaciones WHERE id=%s", (publicacion_id,))
+                if cursor.fetchone() is None:
+                    flash('No se encontró la publicación que intentas editar.', 'warning')
+                    return redirect(url_for('administrar_publicaciones'))
+                cursor.execute(
+                    """UPDATE publicaciones
+                       SET titulo=%s, contenido=%s, activo=%s
+                       WHERE id=%s""",
+                    (titulo, contenido, activo, publicacion_id)
+                )
+                flash('Comunicado actualizado correctamente.', 'success')
+            else:
+                cursor.execute(
+                    """INSERT INTO publicaciones (titulo, contenido, activo, creado_por)
+                       VALUES (%s, %s, %s, %s)""",
+                    (titulo, contenido, activo, session['usuario'])
+                )
+                flash('Comunicado publicado correctamente.', 'success')
+            db.commit()
+        except Exception as e:
+            print(f"Guardar publicación: {e}")
+            flash('No se pudo guardar. Verifica que migracion_publicaciones.sql esté aplicada.', 'error')
+        finally:
+            close_db(db, cursor)
+        return redirect(url_for('administrar_publicaciones'))
+
+    db = get_db()
+    publicaciones = [dict(p) for p in DEMO_PUBLICACIONES]
+    publicacion = None
+    modo_demo = db is None
+    migration_error = False
+    if db is not None:
+        cursor = None
+        try:
+            cursor = db.cursor(dictionary=True)
+            cursor.execute(
+                """SELECT id, titulo, contenido, activo, creado_por, actualizado_en
+                   FROM publicaciones ORDER BY actualizado_en DESC"""
+            )
+            publicaciones = cursor.fetchall()
+            editar = request.args.get('editar', '').strip()
+            if editar:
+                try:
+                    editar_id = int(editar)
+                except ValueError:
+                    flash('La publicación seleccionada no es válida.', 'warning')
+                else:
+                    publicacion = next((p for p in publicaciones if p['id'] == editar_id), None)
+                    if publicacion is None:
+                        flash('No se encontró la publicación que intentas editar.', 'warning')
+        except Exception as e:
+            print(f"Cargar publicaciones: {e}")
+            flash('No se pudo abrir la tabla de publicaciones. Aplica migracion_publicaciones.sql.', 'error')
+            publicaciones = []
+            migration_error = True
+        finally:
+            close_db(db, cursor)
+    elif request.args.get('editar', '').strip():
+        try:
+            editar_id = int(request.args['editar'])
+            publicacion = next((p for p in publicaciones if p['id'] == editar_id), None)
+        except ValueError:
+            flash('La publicación seleccionada no es válida.', 'warning')
+        if publicacion is None:
+            flash('No se encontró la publicación que intentas editar.', 'warning')
+
+    return render_template(
+        'admin_publicaciones.html',
+        publicaciones=publicaciones,
+        publicacion=publicacion,
+        modo_demo=modo_demo,
+        migration_error=migration_error
+    )
+
+
 @app.route('/dashboard')
+@roles_required('administrador')
 def dashboard():
     """Dashboard principal con KPIs, gráfico radial y actividad reciente"""
     db = get_db_or_fallback()
@@ -247,94 +447,279 @@ def dashboard():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    db = get_db_or_fallback()
-    if db is None:
-        recientes = DEMO_USUARIOS[:4]
-        if request.method == 'POST':
-            session['usuario'] = request.form['usuario']
+    if request.method == 'GET':
+        if session.get('rol') == 'administrador':
             return redirect(url_for('dashboard'))
-        return render_template('acceso.html', recientes=recientes)
+        if session.get('rol') == 'usuario':
+            return redirect(url_for('radicar_pqr'))
+        return render_template('acceso.html')
 
-    cursor = None
-    try:
-        cursor = db.cursor(dictionary=True)
-        if request.method == 'POST':
-            usuario = request.form['usuario']
-            clave = request.form['clave']
-            cursor.execute("SELECT * FROM usuarios WHERE (nombre=%s OR documento=%s) AND clave=%s", (usuario, usuario, clave))
-            user = cursor.fetchone()
-            if user:
-                session['usuario'] = user['nombre']
-                close_db(db, cursor)
-                return redirect(url_for('dashboard'))
-            else:
-                flash('Usuario o contraseña incorrectos', 'error')
-        cursor.execute("SELECT nombre, documento FROM usuarios ORDER BY id DESC LIMIT 4")
-        recientes = cursor.fetchall()
-        close_db(db, cursor)
-        return render_template('acceso.html', recientes=recientes)
-    except Exception as e:
-        print(f"Login fallback: {e}")
-        close_db(db, cursor)
-        recientes = DEMO_USUARIOS[:4]
-        if request.method == 'POST':
-            session['usuario'] = request.form.get('usuario', 'Invitado')
-            return redirect(url_for('dashboard'))
-        return render_template('acceso.html', recientes=recientes)
-
-
-@app.route('/registro', methods=['POST'])
-def registro():
-    nombre = request.form['nombre']
-    documento = request.form['documento']
-    telefono = request.form['telefono']
-    clave = request.form['clave']
-
-    db = get_db_or_fallback()
-    if db is None:
-        session['usuario'] = nombre
-        flash('Registro exitoso (modo demo)', 'success')
-        return redirect(url_for('dashboard'))
-
-    cursor = None
-    try:
-        cursor = db.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM usuarios WHERE documento=%s OR nombre=%s", (documento, nombre))
-        existente = cursor.fetchone()
-
-        if existente:
-            flash(f"La persona {existente['nombre']} (Doc: {existente['documento']}) ya está registrada.", 'warning')
-        else:
-            cursor.execute("INSERT INTO usuarios (nombre, documento, telefono, clave) VALUES (%s, %s, %s, %s)",
-                           (nombre, documento, telefono, clave))
-            db.commit()
-            session['usuario'] = nombre
-            flash('Registro exitoso', 'success')
-            close_db(db, cursor)
-            return redirect(url_for('dashboard'))
-
-        close_db(db, cursor)
+    usuario = request.form.get('usuario', '').strip()
+    clave = request.form.get('clave', '').strip()
+    rol = request.form.get('rol', '').strip()
+    session.clear()
+    if not usuario or not clave or rol not in ('administrador', 'usuario'):
+        flash('Completa tus datos y selecciona un tipo de acceso.', 'warning')
         return redirect(url_for('login'))
+
+    if rol == 'administrador':
+        admin_username = os.environ.get('ADMIN_USERNAME', 'Milena').strip()
+        admin_password = os.environ.get('ADMIN_PASSWORD', '')
+        if not admin_username or not admin_password:
+            flash('El acceso de Administrador no está configurado en el servidor.', 'error')
+            return redirect(url_for('login'))
+        if hmac.compare_digest(usuario, admin_username) and hmac.compare_digest(clave, admin_password):
+            session['usuario'] = admin_username
+            session['rol'] = 'administrador'
+            return redirect(url_for('dashboard'))
+        flash('Usuario o contraseña incorrectos.', 'error')
+        return redirect(url_for('login'))
+
+    db = get_db()
+    cursor = None
+    if db is None:
+        flash('Base de datos no disponible. Solo están disponibles las cuentas registradas durante esta sesión de demostración.', 'warning')
+        account = demo_login_is_valid(usuario, clave)
+        if account:
+            session['usuario'] = account['nombre']
+            session['rol'] = 'usuario'
+            flash('Ingreso como usuario en modo demostración.', 'success')
+            return redirect(url_for('radicar_pqr'))
+        flash('Usuario o contraseña incorrectos.', 'error')
+        return redirect(url_for('login'))
+
+    try:
+        cursor = db.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT nombre, documento, clave FROM usuarios WHERE nombre=%s OR documento=%s LIMIT 1",
+            (usuario, usuario)
+        )
+        user = cursor.fetchone()
+        if not user or not verify_password(user['clave'], clave):
+            flash('Usuario o contraseña incorrectos.', 'error')
+            return redirect(url_for('login'))
+        session['usuario'] = user['nombre']
+        session['rol'] = 'usuario'
+        return redirect(url_for('radicar_pqr'))
     except Exception as e:
-        print(f"Registro fallback: {e}")
+        print(f"Login failed: {e}")
+        flash('No se pudo validar el acceso. Intenta de nuevo.', 'error')
+        return redirect(url_for('login'))
+    finally:
         close_db(db, cursor)
+
+
+@app.route('/registro', methods=['GET', 'POST'])
+def registro():
+    if request.method == 'GET':
+        return render_template('registro.html')
+
+    if missing_fields('nombre', 'documento', 'clave', 'confirmar_clave'):
+        flash('Completa todos los campos obligatorios.', 'warning')
+        return redirect(url_for('registro'))
+
+    nombre = request.form['nombre'].strip()
+    documento = request.form['documento'].strip()
+    telefono = request.form.get('telefono', '').strip()
+    clave = request.form['clave']
+    confirmar_clave = request.form['confirmar_clave']
+    if len(clave) < 8:
+        flash('La contraseña debe tener al menos 8 caracteres.', 'warning')
+        return redirect(url_for('registro'))
+    if clave != confirmar_clave:
+        flash('Las contraseñas no coinciden.', 'warning')
+        return redirect(url_for('registro'))
+
+    clave_hash = generate_password_hash(clave)
+    db = get_db()
+    if db is None:
+        if any(account['documento'] == documento for account in DEMO_CUENTAS.values()):
+            flash('Ya existe una cuenta con ese documento.', 'warning')
+            return redirect(url_for('registro'))
+        DEMO_CUENTAS[documento] = {
+            'nombre': nombre,
+            'documento': documento,
+            'telefono': telefono,
+            'clave': clave_hash,
+        }
+        session.clear()
         session['usuario'] = nombre
-        flash('Registro exitoso (modo demo)', 'success')
-        return redirect(url_for('dashboard'))
+        session['rol'] = 'usuario'
+        flash('Cuenta creada en modo de demostración; no quedará guardada al reiniciar.', 'warning')
+        return redirect(url_for('radicar_pqr'))
+
+    cursor = None
+    try:
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT id FROM usuarios WHERE documento=%s", (documento,))
+        existente = cursor.fetchone()
+        if existente:
+            flash('Ya existe una cuenta con ese documento.', 'warning')
+            return redirect(url_for('registro'))
+        cursor.execute(
+            "INSERT INTO usuarios (nombre, documento, telefono, clave) VALUES (%s, %s, %s, %s)",
+            (nombre, documento, telefono, clave_hash)
+        )
+        db.commit()
+        session.clear()
+        session['usuario'] = nombre
+        session['rol'] = 'usuario'
+        flash('Cuenta creada correctamente.', 'success')
+        return redirect(url_for('radicar_pqr'))
+    except Exception as e:
+        print(f"Registro de usuario: {e}")
+        flash('No se pudo completar el registro. Verifica la migración de contraseñas y vuelve a intentar.', 'error')
+        return redirect(url_for('registro'))
+    finally:
+        close_db(db, cursor)
+
+
+@app.route('/nuevo-asociado', methods=['GET', 'POST'])
+@roles_required('administrador')
+def nuevo_asociado():
+    if request.method == 'GET':
+        return render_template('nuevo_asociado.html')
+
+    required = missing_fields('nombre', 'documento')
+    if required:
+        flash('Completa el nombre y el documento del asociado.', 'warning')
+        return redirect(url_for('nuevo_asociado'))
+
+    nombre = request.form['nombre'].strip()
+    documento = request.form['documento'].strip()
+    telefono = request.form.get('telefono', '').strip()
+    vereda = request.form.get('vereda', '').strip()
+    tarifa = request.form.get('tarifa', 'Residencial').strip()
+    try:
+        estrato = int(request.form.get('estrato', '2'))
+    except ValueError:
+        flash('Selecciona un estrato válido.', 'warning')
+        return redirect(url_for('nuevo_asociado'))
+    if estrato not in (1, 2, 3):
+        flash('Selecciona un estrato válido.', 'warning')
+        return redirect(url_for('nuevo_asociado'))
+
+    db = get_db_or_fallback()
+    if db is None:
+        if any(user['documento'] == documento for user in DEMO_USUARIOS):
+            flash('Ya existe un asociado con ese documento.', 'warning')
+            return redirect(url_for('nuevo_asociado'))
+        DEMO_USUARIOS.append({
+            'id': max(user['id'] for user in DEMO_USUARIOS) + 1,
+            'nombre': nombre,
+            'documento': documento,
+            'telefono': telefono,
+            'vereda': vereda,
+            'estrato': estrato,
+            'medidor': 'Pendiente',
+            'tarifa': tarifa,
+            'estado': 'Activo',
+            'ultimo_pago': '—',
+        })
+        flash('Asociado registrado en modo demostración.', 'success')
+        return redirect(url_for('nuevo_asociado'))
+
+    cursor = None
+    try:
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT id FROM asociados WHERE documento=%s", (documento,))
+        if cursor.fetchone():
+            flash('Ya existe un asociado con ese documento.', 'warning')
+            close_db(db, cursor)
+            return redirect(url_for('nuevo_asociado'))
+        cursor.execute(
+            """INSERT INTO asociados (nombre, documento, telefono, vereda, estrato, tarifa, estado)
+               VALUES (%s, %s, %s, %s, %s, %s, 'Activo')""",
+            (nombre, documento, telefono, vereda, estrato, tarifa)
+        )
+        db.commit()
+        flash('Asociado registrado correctamente.', 'success')
+    except Exception as e:
+        print(f"Nuevo asociado: {e}")
+        flash('No se pudo registrar el asociado. Intenta de nuevo.', 'error')
+    finally:
+        close_db(db, cursor)
+    return redirect(url_for('nuevo_asociado'))
+
+
+@app.route('/radicar-pqr', methods=['GET', 'POST'])
+@roles_required('usuario')
+def radicar_pqr():
+    if request.method == 'GET':
+        return render_template('radicar_pqr.html')
+
+    if missing_fields('tipo', 'asunto'):
+        flash('Selecciona el tipo de PQR y describe el motivo.', 'warning')
+        return redirect(url_for('radicar_pqr'))
+
+    tipo = request.form['tipo'].strip()
+    asunto = request.form['asunto'].strip()
+    sector = request.form.get('sector', '').strip()
+    prioridad = request.form.get('prioridad', 'Media').strip()
+    tipos_validos = ('Petición', 'Queja', 'Reclamo', 'Solicitud de Reparación')
+    prioridades_validas = ('Baja', 'Media', 'Alta', 'Crítica')
+    if tipo not in tipos_validos or prioridad not in prioridades_validas:
+        flash('Revisa el tipo de PQR y la prioridad seleccionados.', 'warning')
+        return redirect(url_for('radicar_pqr'))
+    if len(asunto) > 200:
+        flash('El asunto y la descripción pueden tener hasta 200 caracteres.', 'warning')
+        return redirect(url_for('radicar_pqr'))
+
+    db = get_db_or_fallback()
+    if db is None:
+        codigo = f"P-{len(DEMO_PQRS) + 1:03d}"
+        DEMO_PQRS.append({
+            'codigo': codigo,
+            'tipo': tipo,
+            'asunto': asunto,
+            'sector': sector,
+            'descripcion': asunto,
+            'prioridad': prioridad,
+            'fecha': datetime.now().strftime('%Y-%m-%d'),
+            'estado': 'Pendiente',
+            'responsable': 'Por asignar',
+        })
+        flash(f'PQR radicada en modo demostración. Código: {codigo}.', 'success')
+        return redirect(url_for('radicar_pqr'))
+
+    cursor = None
+    try:
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT COUNT(*) AS total FROM pqrs")
+        codigo = f"P-{cursor.fetchone()['total'] + 1:03d}"
+        cursor.execute(
+            """INSERT INTO pqrs (codigo, tipo, asunto, sector, prioridad, estado, fecha)
+               VALUES (%s, %s, %s, %s, %s, 'Pendiente', CURDATE())""",
+            (codigo, tipo, asunto, sector, prioridad)
+        )
+        db.commit()
+        flash(f'PQR radicada correctamente. Código: {codigo}.', 'success')
+    except Exception as e:
+        print(f"Radicar PQR: {e}")
+        flash('No se pudo radicar la PQR. Intenta de nuevo.', 'error')
+    finally:
+        close_db(db, cursor)
+    return redirect(url_for('radicar_pqr'))
 
 
 @app.route('/logout')
 def logout():
-    session.pop('usuario', None)
-    return redirect(url_for('login'))
+    session.clear()
+    return redirect(url_for('inicio'))
 
 
 @app.route('/productos', methods=['GET', 'POST'])
 @app.route('/asociados', methods=['GET', 'POST'])
+@roles_required('administrador')
 def productos():
     """Asociados y Servicios - lista completa con gráficos"""
     db = get_db_or_fallback()
     if db is None:
+        if request.method == 'POST':
+            if missing_fields('nombre', 'documento'):
+                flash('Completa el nombre y el documento del asociado.', 'warning')
+            else:
+                flash('Asociado registrado (modo demostración).', 'success')
         return render_template('productos.html',
             asociados=DEMO_USUARIOS,
             servicios=DEMO_SERVICIOS,
@@ -346,9 +731,13 @@ def productos():
     try:
         cursor = db.cursor(dictionary=True)
         if request.method == 'POST':
-            nombre = request.form['nombre']
-            documento = request.form['documento']
-            telefono = request.form['telefono']
+            if missing_fields('nombre', 'documento'):
+                flash('Completa el nombre y el documento del asociado.', 'warning')
+                close_db(db, cursor)
+                return redirect(url_for('productos'))
+            nombre = request.form['nombre'].strip()
+            documento = request.form['documento'].strip()
+            telefono = request.form.get('telefono', '').strip()
             vereda = request.form.get('vereda', '')
             estrato = request.form.get('estrato', 1)
             tarifa = request.form.get('tarifa', 'Residencial')
@@ -391,10 +780,25 @@ def productos():
 
 
 @app.route('/agua', methods=['GET', 'POST'])
+@roles_required('administrador')
 def agua():
     """Gestión del Agua - telemetría, lecturas y gráficos de consumo"""
     db = get_db_or_fallback()
     if db is None:
+        if request.method == 'POST':
+            required = missing_fields('servicio', 'lectura_anterior', 'lectura_actual')
+            if required:
+                flash('Completa todos los datos de la lectura.', 'warning')
+            else:
+                try:
+                    anterior = int(request.form['lectura_anterior'])
+                    actual = int(request.form['lectura_actual'])
+                    if anterior < 0 or actual < anterior:
+                        flash('La lectura actual no puede ser menor que la anterior.', 'warning')
+                    else:
+                        flash('Lectura registrada (modo demostración).', 'success')
+                except ValueError:
+                    flash('Las lecturas deben ser valores numéricos.', 'warning')
         return render_template('agua2.html',
             lecturas=DEMO_LECTURAS,
             telemetria=DEMO_TELEMETRIA,
@@ -411,9 +815,22 @@ def agua():
     try:
         cursor = db.cursor(dictionary=True)
         if request.method == 'POST':
-            servicio = request.form['servicio']
-            ant = int(request.form['lectura_anterior'])
-            act = int(request.form['lectura_actual'])
+            if missing_fields('servicio', 'lectura_anterior', 'lectura_actual'):
+                flash('Completa todos los datos de la lectura.', 'warning')
+                close_db(db, cursor)
+                return redirect(url_for('agua'))
+            servicio = request.form['servicio'].strip()
+            try:
+                ant = int(request.form['lectura_anterior'])
+                act = int(request.form['lectura_actual'])
+            except ValueError:
+                flash('Las lecturas deben ser valores numéricos.', 'warning')
+                close_db(db, cursor)
+                return redirect(url_for('agua'))
+            if ant < 0 or act < ant:
+                flash('La lectura actual no puede ser menor que la anterior.', 'warning')
+                close_db(db, cursor)
+                return redirect(url_for('agua'))
             consumo = max(0, act - ant)
             cursor.execute("""INSERT INTO lecturas (servicio, lectura_anterior, lectura_actual, consumo)
                              VALUES (%s, %s, %s, %s)""", (servicio, ant, act, consumo))
@@ -453,10 +870,16 @@ def agua():
 
 
 @app.route('/facturacion', methods=['GET', 'POST'])
+@roles_required('administrador')
 def facturacion():
     """Facturación y Pagos - cartera, KPIs y gráficos"""
     db = get_db_or_fallback()
     if db is None:
+        if request.method == 'POST':
+            if not request.form.get('id_factura', '').strip():
+                flash('No se indicó la factura a pagar.', 'warning')
+            else:
+                flash('Pago registrado (modo demostración).', 'success')
         # KPIs
         total_facturado = sum(f['valor'] for f in DEMO_FACTURAS)
         total_recaudado = sum(f['valor'] for f in DEMO_FACTURAS if f['estado'] == 'Pagada')
@@ -487,7 +910,11 @@ def facturacion():
     try:
         cursor = db.cursor(dictionary=True)
         if request.method == 'POST':
-            id_factura = request.form['id_factura']
+            id_factura = request.form.get('id_factura', '').strip()
+            if not id_factura:
+                flash('No se indicó la factura a pagar.', 'warning')
+                close_db(db, cursor)
+                return redirect(url_for('facturacion'))
             cursor.execute("UPDATE facturas SET estado='Pagada', fecha_pago=CURDATE() WHERE id=%s", (id_factura,))
             db.commit()
             flash('Pago registrado correctamente', 'success')
@@ -558,10 +985,16 @@ def facturacion():
 
 
 @app.route('/pqrs', methods=['GET', 'POST'])
+@roles_required('administrador')
 def pqrs():
     """Sistema PQRS - tickets, KPIs y gráficos"""
     db = get_db_or_fallback()
     if db is None:
+        if request.method == 'POST':
+            if missing_fields('tipo', 'asunto'):
+                flash('Completa el tipo y el asunto de la PQRS.', 'warning')
+            else:
+                flash('PQRS radicado (modo demostración).', 'success')
         # KPIs
         abiertos = len([p for p in DEMO_PQRS if p['estado'] == 'Pendiente'])
         en_proceso = len([p for p in DEMO_PQRS if p['estado'] == 'En proceso'])
@@ -601,8 +1034,12 @@ def pqrs():
     try:
         cursor = db.cursor(dictionary=True)
         if request.method == 'POST':
-            tipo = request.form['tipo']
-            asunto = request.form['asunto']
+            if missing_fields('tipo', 'asunto'):
+                flash('Completa el tipo y el asunto de la PQRS.', 'warning')
+                close_db(db, cursor)
+                return redirect(url_for('pqrs'))
+            tipo = request.form['tipo'].strip()
+            asunto = request.form['asunto'].strip()
             sector = request.form.get('sector', '')
             prioridad = request.form.get('prioridad', 'Media')
             cursor.execute("SELECT COUNT(*) AS total FROM pqrs")
@@ -624,7 +1061,7 @@ def pqrs():
         kpis['abiertos'] = kpis.get('pendiente', 0)
         kpis['en_proceso'] = kpis.get('en_proceso', 0)
         kpis['resueltos'] = kpis.get('resuelto', 0)
-        kpis['total'] = sum(kpis.values())
+        kpis['total'] = sum(row['total'] for row in estado_rows)
 
         cursor.execute("SELECT tipo, COUNT(*) as total FROM pqrs GROUP BY tipo")
         por_tipo = {row['tipo']: row['total'] for row in cursor.fetchall()}
@@ -670,4 +1107,4 @@ def pqrs():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=int(os.environ.get('PORT', '5050')))

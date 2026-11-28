@@ -23,23 +23,26 @@
 
       <div class="d-flex align-items-center gap-2">
         <span class="badge badge-user px-3 py-2 rounded-pill" style="background: rgba(255, 255, 255, 0.65); color: #135E42; border: 1px solid rgba(19, 94, 66, 0.15);">
-          👤 {{ session.get('usuario', 'Ana Torres · Administradora') }}
+          👤 {{ session.get('usuario') }} · Administrador
         </span>
-        <a href="/login" class="btn btn-outline-success btn-sm rounded-pill">🔑 Acceso</a>
-        <a href="/logout" class="btn btn-danger btn-sm rounded-pill">🚪 Salir</a>
+        <a href="{{ url_for('inicio') }}" class="btn btn-outline-success btn-sm rounded-pill">Inicio</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm rounded-pill">Cerrar sesión</a>
       </div>
     </div>
   </header>
 
   <nav class="nav-veredal px-4 py-2 sticky-top shadow-sm">
     <div class="container-fluid">
-      <ul class="nav flex-wrap gap-2">
-        <li class="nav-item"><a class="nav-link {% if request.path in ['/', '/dashboard'] %}active{% endif %}" href="/dashboard">📊 Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link {% if request.path in ['/productos', '/asociados'] %}active{% endif %}" href="/productos">👥 Asociados / Productos</a></li>
-        <li class="nav-item"><a class="nav-link {% if request.path == '/agua' %}active{% endif %}" href="/agua">💧 Gestión del Agua</a></li>
-        <li class="nav-item"><a class="nav-link {% if request.path == '/facturacion' %}active{% endif %}" href="/facturacion">🧾 Facturación y Pagos</a></li>
-        <li class="nav-item"><a class="nav-link {% if request.path == '/pqrs' %}active{% endif %}" href="/pqrs">💬 Sistema PQRS</a></li>
-      </ul>
+      {% if session.get('rol') == 'administrador' %}
+        <ul class="nav flex-wrap gap-2">
+          <li class="nav-item"><a class="nav-link {% if request.path == '/dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">📊 Indicadores</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path in ['/productos', '/asociados', '/nuevo-asociado'] %}active{% endif %}" href="{{ url_for('productos') }}">👥 Asociados / Productos</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/agua' %}active{% endif %}" href="{{ url_for('agua') }}">💧 Gestión del Agua</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/facturacion' %}active{% endif %}" href="{{ url_for('facturacion') }}">🧾 Facturación y Pagos</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/pqrs' %}active{% endif %}" href="{{ url_for('pqrs') }}">💬 PQRS</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/admin/publicaciones' %}active{% endif %}" href="{{ url_for('administrar_publicaciones') }}">📢 Publicaciones</a></li>
+        </ul>
+      {% endif %}
     </div>
   </nav>
 

@@ -4,7 +4,6 @@
 <div class="modulo-card">
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <h5 class="fw-bold mb-0" style="color: var(--title-dark);">💬 Sistema PQRS — Peticiones, Quejas y Reclamos</h5>
-    <button class="btn btn-verde" data-bs-toggle="modal" data-bs-target="#modalNuevaPQRS">+ Radicar PQRS</button>
   </div>
 
   <!-- KPIs -->
@@ -114,62 +113,6 @@
   </div>
 </div>
 
-<!-- Modal Nueva PQRS -->
-<div class="modal fade" id="modalNuevaPQRS" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content login-card">
-      <div class="modal-header" style="border-bottom: 1px solid var(--glass-border);">
-        <h5 class="modal-title fw-bold" style="color: var(--ink-forest);">📝 Radicar Nueva PQRS</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form method="POST" class="p-4">
-        <div class="text-center">
-          <img src="{{ url_for('static', filename='img/logo.ico') }}" alt="Logo" class="logo-login-grande">
-          <h5 class="fw-bold mb-3" style="color: var(--ink-forest);">📝 Radicar Nueva PQRS</h5>
-        </div>
-        <div class="row g-3">
-          <div class="col-md-3">
-            <label class="form-label">Tipo *</label>
-            <select name="tipo" class="form-select" required>
-              <option value="Petición">Petición</option>
-              <option value="Queja">Queja</option>
-              <option value="Reclamo">Reclamo</option>
-              <option value="Solicitud de Reparación">Solicitud de Reparación</option>
-            </select>
-          </div>
-          <div class="col-md-9">
-            <label class="form-label">Asunto *</label>
-            <input type="text" name="asunto" class="form-control" placeholder="Describe tu solicitud o daño..." required>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Sector</label>
-            <select name="sector" class="form-select">
-              <option value="">Seleccionar...</option>
-              <option value="El Roble">El Roble</option>
-              <option value="La Loma">La Loma</option>
-              <option value="San José">San José</option>
-              <option value="El Mirador">El Mirador</option>
-              <option value="Nueva Esperanza">Nueva Esperanza</option>
-            </select>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Prioridad</label>
-            <select name="prioridad" class="form-select">
-              <option value="Baja">Baja</option>
-              <option value="Media" selected>Media</option>
-              <option value="Alta">Alta</option>
-              <option value="Crítica">Crítica</option>
-            </select>
-          </div>
-        </div>
-        <div class="d-flex justify-content-end gap-2 mt-4">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-verde">Radicar PQRS</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 {% endblock %}
 {% block scripts %}
 <script>

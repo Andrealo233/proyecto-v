@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeredalApp - Radicar PQR</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/logo.ico') }}" type="image/x-icon">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+  <style>.form-card { max-width: 760px; }</style>
+</head>
+<body>
+  <main class="smoking-wrapper">
+    <section class="login-card form-card">
+      <header class="text-center mb-4">
+        <img src="{{ url_for('static', filename='img/logo.ico') }}" alt="Logo de VeredalApp" class="logo-login-grande mb-2">
+        <h1 class="h4 fw-bold text-success mb-1">Radicar PQR</h1>
+        <p class="text-muted mb-0">Cuéntanos qué necesitas. Los campos con * son obligatorios.</p>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <form action="{{ url_for('radicar_pqr') }}" method="POST">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label for="tipo" class="form-label">Tipo de solicitud *</label>
+            <select id="tipo" name="tipo" class="form-select" required>
+              <option value="">Seleccionar...</option>
+              <option value="Petición">Petición</option>
+              <option value="Queja">Queja</option>
+              <option value="Reclamo">Reclamo</option>
+              <option value="Solicitud de Reparación">Solicitud de Reparación</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label for="sector" class="form-label">Vereda o sector</label>
+            <select id="sector" name="sector" class="form-select">
+              <option value="">Seleccionar...</option>
+              <option value="El Roble">El Roble</option>
+              <option value="La Loma">La Loma</option>
+              <option value="San José">San José</option>
+              <option value="El Mirador">El Mirador</option>
+              <option value="Nueva Esperanza">Nueva Esperanza</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label for="prioridad" class="form-label">Prioridad</label>
+            <select id="prioridad" name="prioridad" class="form-select">
+              <option value="Baja">Baja</option>
+              <option value="Media" selected>Media</option>
+              <option value="Alta">Alta</option>
+              <option value="Crítica">Crítica</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label for="asunto" class="form-label">Asunto y descripción *</label>
+            <textarea id="asunto" name="asunto" class="form-control" rows="5" maxlength="200" placeholder="Describe tu petición, queja, reclamo o solicitud..." required></textarea>
+          </div>
+        </div>
+        <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mt-4">
+          <a class="btn btn-outline-success" href="{{ url_for('inicio') }}">Volver al inicio</a>
+          <button type="submit" class="btn btn-verde">Radicar PQR</button>
+        </div>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
