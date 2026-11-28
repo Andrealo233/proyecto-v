@@ -6,10 +6,11 @@
   <title>VeredalApp - Punto de Acceso</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cartilla.css') }}">
 </head>
 <body>
   <div class="smoking-wrapper">
-    <div class="login-card">
+    <div class="login-card cartilla-book cartilla-auth-book cartilla-auth-compact" data-cartilla aria-label="Punto de acceso">
       <div class="text-center mb-4">
         <img src="{{ url_for('static', filename='img/logo.ico') }}" alt="Logo" class="logo-login-grande mb-2">
         <h4 class="fw-bold text-success mb-0">VeredalApp</h4>
@@ -46,6 +47,6 @@
       <a class="btn btn-outline-success w-100 mt-3" href="{{ url_for('inicio') }}">Volver al inicio</a>
     </div>
   </div>
-
+  <script src="{{ url_for('static', filename='js/cartilla.js') }}"></script>
 </body>
 </html>

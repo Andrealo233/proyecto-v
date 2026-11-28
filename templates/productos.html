@@ -1,247 +1,90 @@
 {% extends "principal.html" %}
-{% block title %}Asociados y Servicios{% endblock %}
+{% block title %}Asociados y Viviendas{% endblock %}
 {% block content %}
 <div class="modulo-card mb-4">
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-    <h5 class="fw-bold mb-0" style="color: var(--title-dark);">👥 Gestión de Asociados y Servicios</h5>
+    <div>
+      <h5 class="fw-bold mb-1" style="color: var(--title-dark);">Gestión de Asociados y Viviendas</h5>
+      <p class="text-muted mb-0">Asigna una o varias casas a cada asociado y configura su frecuencia de pago.</p>
+    </div>
     <a class="btn btn-verde" href="{{ url_for('nuevo_asociado') }}">+ Nuevo Asociado</a>
   </div>
 
-  <!-- KPIs Row -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-3">
-      <div class="section-card text-center p-3" style="background: var(--kpi-usuarios-bg); border-color: var(--kpi-usuarios-accent);">
-        <small class="text-muted d-block">TOTAL ASOCIADOS</small>
-        <h3 class="fw-bold mb-0" style="color: var(--kpi-usuarios-accent);">{{ asociados|length }}</h3>
+  <div class="row g-3 mb-4 metric-grid" data-cartilla-page data-cartilla-label="Resumen de asociados">
+    <div class="col-md-4">
+      <div class="section-card text-center p-3 metric-card metric-card-aqua">
+        <small class="text-muted d-block">ASOCIADOS</small>
+        <strong class="fs-3">{{ asociados|length }}</strong>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="section-card text-center p-3" style="background: var(--kpi-servicios-bg); border-color: var(--kpi-servicios-accent);">
-        <small class="text-muted d-block">ACTIVOS</small>
-        <h3 class="fw-bold mb-0" style="color: var(--kpi-servicios-accent);">{{ asociados|selectattr('estado', 'equalto', 'Activo')|list|length }}</h3>
+    <div class="col-md-4">
+      <div class="section-card text-center p-3 metric-card metric-card-mint">
+        <small class="text-muted d-block">VIVIENDAS REGISTRADAS</small>
+        <strong class="fs-3">{{ asociados|sum(attribute='cantidad_viviendas') }}</strong>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="section-card text-center p-3" style="background: var(--kpi-recaudo-bg); border-color: var(--kpi-recaudo-accent);">
-        <small class="text-muted d-block">VEREDAS</small>
-        <h3 class="fw-bold mb-0" style="color: var(--kpi-recaudo-accent);">{{ veredas|length }}</h3>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="section-card text-center p-3" style="background: var(--kpi-pqrs-bg); border-color: var(--kpi-pqrs-accent);">
-        <small class="text-muted d-block">TIPOS SERVICIO</small>
-        <h3 class="fw-bold mb-0" style="color: var(--kpi-pqrs-accent);">{{ tipos_servicio|length }}</h3>
+    <div class="col-md-4">
+      <div class="section-card text-center p-3 metric-card metric-card-coral">
+        <small class="text-muted d-block">PENDIENTES DE ASIGNAR</small>
+        <strong class="fs-3">{{ asociados|selectattr('cantidad_viviendas', 'equalto', 0)|list|length }}</strong>
       </div>
     </div>
   </div>
 
-  <!-- Charts Row -->
-  <div class="row g-4 mb-4">
-    <div class="col-lg-6">
-      <div class="section-card h-100">
-        <h6 class="fw-bold mb-3" style="color: var(--ink-forest);">Asociados por Vereda / Sector</h6>
-        <div class="chart-wrapper" style="min-height: 280px; max-height: 280px;">
-          <canvas id="graficaVeredas"></canvas>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-6">
-      <div class="section-card h-100">
-        <h6 class="fw-bold mb-3" style="color: var(--ink-forest);">Distribución por Tipo de Servicio</h6>
-        <div class="chart-wrapper" style="min-height: 280px; max-height: 280px;">
-          <canvas id="graficaTiposServicio"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
 
-  <!-- Table -->
-  <div class="table-responsive">
+  <div class="table-responsive" data-cartilla-page data-cartilla-label="Asociados y viviendas">
     <table class="table table-hover align-middle">
-      <thead><tr><th>#</th><th>Nombre</th><th>Documento</th><th>Vereda</th><th>Estrato</th><th>Medidor</th><th>Tarifa</th><th>Estado</th><th>Último Pago</th></tr></thead>
+      <thead>
+        <tr><th>Asociado</th><th>Documento</th><th>Vereda</th><th>Viviendas</th><th>Frecuencia</th><th>Valor por vivienda</th><th>Total del periodo</th><th>Administrar</th></tr>
+      </thead>
       <tbody>
         {% for a in asociados %}
         <tr>
-          <td>{{ a.id }}</td>
           <td class="fw-bold">{{ a.nombre }}</td>
           <td>{{ a.documento }}</td>
-          <td><span class="badge bg-info">{{ a.vereda }}</span></td>
-          <td><span class="badge bg-success bg-opacity-10">Estrato {{ a.estrato }}</span></td>
-          <td><code>{{ a.medidor }}</code></td>
-          <td>{{ a.tarifa }}</td>
+          <td>{{ a.vereda or '—' }}</td>
           <td>
-            {% if a.estado == 'Activo' %}
-              <span class="badge bg-success">{{ a.estado }}</span>
-            {% elif a.estado == 'Suspendido' %}
-              <span class="badge bg-warning">{{ a.estado }}</span>
+            <strong>{{ a.cantidad_viviendas }}</strong>
+            {% if a.viviendas %}
+              <ul class="mb-0 ps-3">
+                {% for vivienda in a.viviendas %}
+                  <li>{{ vivienda.identificador }}</li>
+                {% endfor %}
+              </ul>
             {% else %}
-              <span class="badge bg-danger">{{ a.estado }}</span>
+              <span class="text-muted d-block">Sin viviendas asignadas</span>
             {% endif %}
           </td>
-          <td>{{ a.ultimo_pago }}</td>
+          <td>{{ a.frecuencia_pago }}</td>
+          <td>${{ a.valor_por_vivienda|cop }}</td>
+          <td class="fw-bold">${{ a.total|cop }}</td>
+          <td>
+            <details>
+              <summary class="btn btn-outline-success btn-sm">Editar</summary>
+              <form method="POST" action="{{ url_for('actualizar_viviendas', asociado_id=a.id) }}" class="mt-2" style="min-width: 260px;">
+                <label for="viviendas-{{ a.id }}" class="form-label small">Una casa o predio por línea</label>
+                <textarea id="viviendas-{{ a.id }}" name="viviendas" class="form-control mb-2" rows="4" maxlength="2000" placeholder="Casa principal&#10;Lote El Roble">{% for vivienda in a.viviendas %}{{ vivienda.identificador }}{% if not loop.last %}
+{% endif %}{% endfor %}</textarea>
+                <label for="frecuencia-{{ a.id }}" class="form-label small">Frecuencia de pago</label>
+                <select id="frecuencia-{{ a.id }}" name="frecuencia_pago" class="form-select mb-2" required>
+                  <option value="Mensual" {% if a.frecuencia_pago == 'Mensual' %}selected{% endif %}>Mensual</option>
+                  <option value="Quincenal" {% if a.frecuencia_pago == 'Quincenal' %}selected{% endif %}>Quincenal</option>
+                </select>
+                <button class="btn btn-verde btn-sm w-100" type="submit">Guardar cambios</button>
+              </form>
+            </details>
+          </td>
         </tr>
+        {% else %}
+        <tr><td colspan="8" class="text-center text-muted py-4">No hay asociados registrados.</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-
-  <!-- Servicios -->
-  <h6 class="fw-bold mt-4 mb-3" style="color: var(--ink-forest);">📋 Servicios y Productos Disponibles</h6>
-  <div class="row g-3">
-    {% for s in servicios %}
-    <div class="col-md-6 col-lg-4">
-      <div class="section-card h-100">
-        <div class="d-flex justify-content-between align-items-start mb-2">
-          <h6 class="fw-bold mb-0" style="color: var(--ink-forest);">{{ s.nombre }}</h6>
-          <span class="badge bg-info">{{ s.tipo }}</span>
-        </div>
-        <p class="small text-muted mb-2">{{ s.descripcion }}</p>
-        <div class="d-flex justify-content-between align-items-center">
-          <span class="fw-bold" style="color: var(--kpi-servicios-accent);">${{ "{:,.0f}".format(s.valor) }}</span>
-          <button class="btn btn-outline-success btn-sm">Contratar</button>
-        </div>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
 </div>
-
-{% endblock %}
-{% block scripts %}
-<script>
-  // ============================================================
-  // DONUT CHART - Asociados por Vereda
-  // ============================================================
-  const ctxVeredas = document.getElementById('graficaVeredas');
-  if (ctxVeredas) {
-    const gVeredas = ctxVeredas.getContext('2d');
-    const veredasData = {{ veredas|tojson }};
-    const labels = Object.keys(veredasData);
-    const data = Object.values(veredasData);
-
-    const veredaColors = ['#24A86B', '#26A3C4', '#68A832', '#2DB37A', '#27A4B0'];
-    const veredaGradients = veredaColors.map((c, i) => {
-      const gr = gVeredas.createRadialGradient(0, 0, 0, 0, 0, 140);
-      gr.addColorStop(0, c + 'CC');
-      gr.addColorStop(1, c);
-      return gr;
-    });
-
-    new Chart(ctxVeredas, {
-      type: 'doughnut',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: data,
-          backgroundColor: veredaGradients.slice(0, labels.length),
-          borderWidth: 0,
-          borderRadius: 8,
-          spacing: 4,
-          cutout: '60%',
-          weight: 0.6
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: { color: '#144734', font: { size: 11 }, padding: 12, usePointStyle: true, pointStyle: 'circle' }
-          },
-          tooltip: {
-            backgroundColor: 'rgba(16, 42, 33, 0.92)',
-            titleColor: '#F5F2E8',
-            bodyColor: '#B7EBD6',
-            padding: 10,
-            cornerRadius: 8,
-            callbacks: {
-              label: function(context) {
-                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                const pct = ((context.raw / total) * 100).toFixed(1);
-                return `${context.label}: ${context.raw} (${pct}%)`;
-              }
-            }
-          }
-        },
-        elements: {
-          arc: {
-            shadowColor: 'rgba(34, 154, 103, 0.25)',
-            shadowBlur: 15,
-            shadowOffsetY: 5
-          }
-        },
-        animation: { animateRotate: true, duration: 1000, easing: 'easeOutQuart' }
-      }
-    });
-  }
-
-  // ============================================================
-  // HORIZONTAL BAR CHART - Tipos de Servicio
-  // ============================================================
-  const ctxTipos = document.getElementById('graficaTiposServicio');
-  if (ctxTipos) {
-    const gTipos = ctxTipos.getContext('2d');
-    const tiposData = {{ tipos_servicio|tojson }};
-    const labels = Object.keys(tiposData);
-    const data = Object.values(tiposData);
-
-    const tipoColors = [
-      { dark: '#0D5A3A', light: '#2EA85D' },
-      { dark: '#0D4A6B', light: '#2A9FD8' },
-      { dark: '#5A3D0D', light: '#D8A82A' },
-      { dark: '#127351', light: '#3AE06B' }
-    ];
-
-    const tipoGradients = tipoColors.slice(0, labels.length).map(({ dark, light }) => {
-      const gr = gTipos.createLinearGradient(0, 0, 300, 0);
-      gr.addColorStop(0, dark);
-      gr.addColorStop(1, light);
-      return gr;
-    });
-
-    new Chart(ctxTipos, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Cantidad',
-          data: data,
-          backgroundColor: tipoGradients,
-          borderRadius: 8,
-          borderWidth: 0,
-          borderSkipped: false,
-          indexAxis: 'y',
-          barPercentage: 0.7,
-          categoryPercentage: 0.6,
-          shadowColor: 'rgba(34, 154, 103, 0.25)',
-          shadowBlur: 12,
-          shadowOffsetX: 4,
-          shadowOffsetY: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        indexAxis: 'y',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: 'rgba(16, 42, 33, 0.92)',
-            titleColor: '#F5F2E8',
-            bodyColor: '#B7EBD6',
-            padding: 10,
-            cornerRadius: 8,
-            callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw} asociados` }
-          }
-        },
-        scales: {
-          x: { beginAtZero: true, grid: { color: 'rgba(34, 154, 103, 0.06)' }, ticks: { color: '#144734', font: { size: 10 } } },
-          y: { grid: { display: false }, ticks: { color: '#144734', font: { size: 10 } } }
-        },
-        animation: { duration: 1000, easing: 'easeOutQuart' }
-      }
-    });
-  }
-</script>
 {% endblock %}

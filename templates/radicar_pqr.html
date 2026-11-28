@@ -7,11 +7,12 @@
   <link rel="icon" href="{{ url_for('static', filename='img/logo.ico') }}" type="image/x-icon">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cartilla.css') }}">
   <style>.form-card { max-width: 760px; }</style>
 </head>
 <body>
   <main class="smoking-wrapper">
-    <section class="login-card form-card">
+    <section class="login-card form-card cartilla-book cartilla-auth-book" data-cartilla aria-label="Radicar una PQR">
       <header class="text-center mb-4">
         <img src="{{ url_for('static', filename='img/logo.ico') }}" alt="Logo de VeredalApp" class="logo-login-grande mb-2">
         <h1 class="h4 fw-bold text-success mb-1">Radicar PQR</h1>
@@ -63,10 +64,12 @@
         </div>
         <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mt-4">
           <a class="btn btn-outline-success" href="{{ url_for('inicio') }}">Volver al inicio</a>
+          <a class="btn btn-outline-success" href="{{ url_for('mi_cuenta') }}">Mi cuenta</a>
           <button type="submit" class="btn btn-verde">Radicar PQR</button>
         </div>
       </form>
     </section>
   </main>
+  <script src="{{ url_for('static', filename='js/cartilla.js') }}"></script>
 </body>
 </html>

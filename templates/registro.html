@@ -7,10 +7,11 @@
   <link rel="icon" href="{{ url_for('static', filename='img/logo.ico') }}" type="image/x-icon">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cartilla.css') }}">
 </head>
 <body>
   <main class="smoking-wrapper">
-    <section class="login-card">
+    <section class="login-card cartilla-book cartilla-auth-book cartilla-auth-compact" data-cartilla aria-label="Registro de usuario">
       <header class="text-center mb-4">
         <img src="{{ url_for('static', filename='img/logo.ico') }}" alt="Logo de VeredalApp" class="logo-login-grande mb-2">
         <h1 class="h4 fw-bold text-success mb-1">Registro de Usuario</h1>
@@ -52,5 +53,6 @@
       <small class="text-muted d-block text-center mt-2">Todas las cuentas nuevas se registran como Usuario, nunca como Administrador.</small>
     </section>
   </main>
+  <script src="{{ url_for('static', filename='js/cartilla.js') }}"></script>
 </body>
 </html>

@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cartilla.css') }}">
 </head>
 <body>
 
@@ -46,13 +47,18 @@
     </div>
   </nav>
 
-  <main class="container-fluid px-4 py-4">
-    {% block content %}{% endblock %}
+  <main class="cartilla-main">
+    <section class="cartilla-book" data-cartilla>
+      <div class="cartilla-content">
+        {% block content %}{% endblock %}
+      </div>
+    </section>
   </main>
 
   <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/chart.umd.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/sweetalert2.all.min.js') }}"></script>
   {% block scripts %}{% endblock %}
+  <script src="{{ url_for('static', filename='js/cartilla.js') }}"></script>
 </body>
 </html>

@@ -24,7 +24,7 @@
       {% if migration_error %}
         <div class="alert alert-danger" role="alert">Aplica la migración <code>migracion_publicaciones.sql</code> para habilitar la gestión persistente.</div>
       {% else %}
-        <form method="POST" action="{{ url_for('administrar_publicaciones') }}" class="section-card p-4 mb-4">
+        <form method="POST" action="{{ url_for('administrar_publicaciones') }}" class="section-card p-4 mb-4" data-cartilla-page data-cartilla-label="Editar comunicado">
           <input type="hidden" name="publicacion_id" value="{{ publicacion.id if publicacion else '' }}">
           <div class="mb-3">
             <label for="titulo" class="form-label">Título *</label>
@@ -44,29 +44,31 @@
           </div>
         </form>
 
-        <h2 class="h5 fw-bold mb-3" style="color: var(--ink-forest);">Comunicados existentes</h2>
-        {% if publicaciones %}
-          <div class="table-responsive">
-            <table class="table table-hover align-middle">
-              <thead><tr><th>Título</th><th>Estado</th><th>Actualizado</th><th></th></tr></thead>
-              <tbody>
-                {% for post in publicaciones %}
-                  <tr>
-                    <td>
-                      <strong>{{ post.titulo }}</strong>
-                      <div class="small text-muted">{{ post.contenido }}</div>
-                    </td>
-                    <td>{% if post.activo %}<span class="badge bg-success">Publicado</span>{% else %}<span class="badge bg-secondary">Oculto</span>{% endif %}</td>
-                    <td>{{ post.actualizado_en }}</td>
-                    <td><a class="btn btn-outline-success btn-sm" href="{{ url_for('administrar_publicaciones', editar=post.id) }}">Editar</a></td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        {% else %}
-          <p class="text-muted mb-0">Todavía no hay comunicados guardados.</p>
-        {% endif %}
+        <section data-cartilla-page data-cartilla-label="Comunicados publicados">
+          <h2 class="h5 fw-bold mb-3" style="color: var(--ink-forest);">Comunicados existentes</h2>
+          {% if publicaciones %}
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead><tr><th>Título</th><th>Estado</th><th>Actualizado</th><th></th></tr></thead>
+                <tbody>
+                  {% for post in publicaciones %}
+                    <tr>
+                      <td>
+                        <strong>{{ post.titulo }}</strong>
+                        <div class="small text-muted">{{ post.contenido }}</div>
+                      </td>
+                      <td>{% if post.activo %}<span class="badge bg-success">Publicado</span>{% else %}<span class="badge bg-secondary">Oculto</span>{% endif %}</td>
+                      <td>{{ post.actualizado_en }}</td>
+                      <td><a class="btn btn-outline-success btn-sm" href="{{ url_for('administrar_publicaciones', editar=post.id) }}">Editar</a></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="text-muted mb-0">Todavía no hay comunicados guardados.</p>
+          {% endif %}
+        </section>
       {% endif %}
     </section>
   </div>

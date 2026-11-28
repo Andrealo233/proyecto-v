@@ -7,15 +7,16 @@
   <link rel="icon" href="{{ url_for('static', filename='img/logo.ico') }}" type="image/x-icon">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cartilla.css') }}">
   <style>.form-card { max-width: 760px; }</style>
 </head>
 <body>
   <main class="smoking-wrapper">
-    <section class="login-card form-card">
+    <section class="login-card form-card cartilla-book cartilla-auth-book" data-cartilla aria-label="Registro de nuevo asociado">
       <header class="text-center mb-4">
         <img src="{{ url_for('static', filename='img/logo.ico') }}" alt="Logo de VeredalApp" class="logo-login-grande mb-2">
         <h1 class="h4 fw-bold text-success mb-1">Nuevo Asociado</h1>
-        <p class="text-muted mb-0">Completa los datos para registrar al asociado.</p>
+        <p class="text-muted mb-0">Registra al asociado, sus viviendas y su frecuencia de pago.</p>
       </header>
 
       {% with messages = get_flashed_messages(with_categories=true) %}
@@ -34,14 +35,6 @@
             <label for="documento" class="form-label">Documento *</label>
             <input id="documento" type="text" name="documento" class="form-control" maxlength="30" required>
           </div>
-          <div class="col-md-2">
-            <label for="estrato" class="form-label">Estrato</label>
-            <select id="estrato" name="estrato" class="form-select">
-              <option value="1">1</option>
-              <option value="2" selected>2</option>
-              <option value="3">3</option>
-            </select>
-          </div>
           <div class="col-md-4">
             <label for="telefono" class="form-label">Teléfono</label>
             <input id="telefono" type="tel" name="telefono" class="form-control" maxlength="30" autocomplete="tel">
@@ -57,14 +50,21 @@
               <option value="Nueva Esperanza">Nueva Esperanza</option>
             </select>
           </div>
-          <div class="col-md-4">
-            <label for="tarifa" class="form-label">Tipo de servicio</label>
-            <select id="tarifa" name="tarifa" class="form-select">
-              <option value="Residencial">Residencial</option>
-              <option value="Agrícola">Agrícola</option>
-              <option value="Comercial">Comercial</option>
-              <option value="Ultrasónico">Ultrasónico</option>
+          <div class="col-md-6">
+            <label for="frecuencia_pago" class="form-label">Frecuencia de pago *</label>
+            <select id="frecuencia_pago" name="frecuencia_pago" class="form-select" required>
+              <option value="Mensual">Mensual — ${{ tarifa_mensual|cop }} por vivienda</option>
+              <option value="Quincenal">Quincenal — ${{ (tarifa_mensual // 2)|cop }} por vivienda</option>
             </select>
+          </div>
+          <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center gap-2">
+              <label class="form-label mb-0">Casas o predios *</label>
+              <button id="agregar-vivienda" type="button" class="btn btn-outline-success btn-sm">Agregar otra vivienda</button>
+            </div>
+            <div id="viviendas-lista" class="d-grid gap-2 mt-2">
+              <input type="text" name="viviendas[]" class="form-control" maxlength="120" placeholder="Ej. Casa principal, lote La Loma" required>
+            </div>
           </div>
         </div>
         <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mt-4">
@@ -74,5 +74,16 @@
       </form>
     </section>
   </main>
+  <script>
+    const viviendasLista = document.getElementById('viviendas-lista');
+    document.getElementById('agregar-vivienda').addEventListener('click', () => {
+      const fila = document.createElement('div');
+      fila.className = 'input-group';
+      fila.innerHTML = '<input type="text" name="viviendas[]" class="form-control" maxlength="120" placeholder="Nombre o referencia de la vivienda" required><button type="button" class="btn btn-outline-danger" aria-label="Quitar vivienda">Quitar</button>';
+      fila.querySelector('button').addEventListener('click', () => fila.remove());
+      viviendasLista.appendChild(fila);
+    });
+  </script>
+  <script src="{{ url_for('static', filename='js/cartilla.js') }}"></script>
 </body>
 </html>

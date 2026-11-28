@@ -7,47 +7,47 @@
   </div>
 
   <!-- KPIs -->
-  <div class="row g-3 mb-4">
+  <div class="row g-3 mb-4 metric-grid" data-cartilla-page data-cartilla-label="Resumen de PQRS">
     <div class="col-md-3">
-      <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #D6F1F8 0%, #EAF8FC 100%); border-color: #26A3C4;">
+      <div class="section-card text-center p-3 metric-card metric-card-aqua">
         <small class="text-muted d-block">ABIERTOS</small>
-        <h3 class="fw-bold mb-0" style="color: #26A3C4;">{{ kpis.abiertos }}</h3>
+        <h3 class="fw-bold mb-0">{{ kpis.abiertos }}</h3>
       </div>
     </div>
     <div class="col-md-3">
-      <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #E2F3CF 0%, #F1F9E6 100%); border-color: #68A832;">
+      <div class="section-card text-center p-3 metric-card metric-card-lime">
         <small class="text-muted d-block">EN PROCESO</small>
-        <h3 class="fw-bold mb-0" style="color: #68A832;">{{ kpis.en_proceso }}</h3>
+        <h3 class="fw-bold mb-0">{{ kpis.en_proceso }}</h3>
       </div>
     </div>
     <div class="col-md-3">
-      <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #CFF2E1 0%, #E7F9F0 100%); border-color: #24A86B;">
+      <div class="section-card text-center p-3 metric-card metric-card-mint">
         <small class="text-muted d-block">RESUELTOS</small>
-        <h3 class="fw-bold mb-0" style="color: #24A86B;">{{ kpis.resueltos }}</h3>
+        <h3 class="fw-bold mb-0">{{ kpis.resueltos }}</h3>
       </div>
     </div>
     <div class="col-md-3">
-      <div class="section-card text-center p-3" style="background: linear-gradient(135deg, #FCE6DF 0%, #FEF2EE 100%); border-color: #E86B58;">
+      <div class="section-card text-center p-3 metric-card metric-card-coral">
         <small class="text-muted d-block">TOTAL</small>
-        <h3 class="fw-bold mb-0" style="color: #E86B58;">{{ kpis.total }}</h3>
+        <h3 class="fw-bold mb-0">{{ kpis.total }}</h3>
       </div>
     </div>
   </div>
 
   <!-- Charts Row -->
-  <div class="row g-4 mb-4">
-    <div class="col-lg-6">
+  <div class="row g-4 mb-4 cartilla-page-flow">
+    <div class="col-lg-6" data-cartilla-page data-cartilla-label="PQRS por categoría">
       <div class="section-card h-100">
         <h6 class="fw-bold mb-3" style="color: var(--ink-forest);">PQRS por Categoría</h6>
-        <div class="chart-wrapper" style="min-height: 280px; max-height: 280px;">
+        <div class="chart-wrapper">
           <canvas id="graficaPQRSTipo"></canvas>
         </div>
       </div>
     </div>
-    <div class="col-lg-6">
+    <div class="col-lg-6" data-cartilla-page data-cartilla-label="PQRS por estado">
       <div class="section-card h-100">
         <h6 class="fw-bold mb-3" style="color: var(--ink-forest);">PQRS por Estado</h6>
-        <div class="chart-wrapper" style="min-height: 280px; max-height: 280px;">
+        <div class="chart-wrapper">
           <canvas id="graficaPQRSEstado"></canvas>
         </div>
       </div>
@@ -55,19 +55,19 @@
   </div>
 
   <!-- Additional Charts Row -->
-  <div class="row g-4 mb-4">
-    <div class="col-lg-6">
+  <div class="row g-4 mb-4 cartilla-page-flow">
+    <div class="col-lg-6" data-cartilla-page data-cartilla-label="PQRS por sector">
       <div class="section-card h-100">
         <h6 class="fw-bold mb-3" style="color: var(--ink-forest);">PQRS por Sector</h6>
-        <div class="chart-wrapper" style="min-height: 250px; max-height: 250px;">
+        <div class="chart-wrapper">
           <canvas id="graficaPQRSSector"></canvas>
         </div>
       </div>
     </div>
-    <div class="col-lg-6">
+    <div class="col-lg-6" data-cartilla-page data-cartilla-label="PQRS por prioridad">
       <div class="section-card h-100">
         <h6 class="fw-bold mb-3" style="color: var(--ink-forest);">PQRS por Prioridad</h6>
-        <div class="chart-wrapper" style="min-height: 250px; max-height: 250px;">
+        <div class="chart-wrapper">
           <canvas id="graficaPQRSPrioridad"></canvas>
         </div>
       </div>
@@ -75,7 +75,7 @@
   </div>
 
   <!-- Tabla de PQRS -->
-  <div class="table-responsive">
+  <div class="table-responsive" data-cartilla-page data-cartilla-label="Listado de PQRS">
     <table class="table table-hover">
       <thead><tr><th>Código</th><th>Tipo</th><th>Asunto</th><th>Sector</th><th>Prioridad</th><th>Fecha</th><th>Estado</th></tr></thead>
       <tbody>
@@ -126,8 +126,9 @@
     const labels = Object.keys(tipoData);
     const data = Object.values(tipoData);
 
-    const tipoColors = ['#24A86B', '#26A3C4', '#E86B58', '#68A832'];
-    const tipoGradients = tipoColors.slice(0, labels.length).map((c) => {
+    const tipoColors = ['#16A34A', '#2563EB', '#F59E0B', '#E4572E', '#7C3AED', '#0891B2', '#DB2777'];
+    const tipoGradients = labels.map((_, index) => {
+      const c = tipoColors[index % tipoColors.length];
       const gr = gTipo.createRadialGradient(0, 0, 0, 0, 0, 120);
       gr.addColorStop(0, c + 'CC');
       gr.addColorStop(1, c);
@@ -191,12 +192,13 @@
     const data = Object.values(estadoData);
 
     const estadoColors = {
-      'Pendiente': '#26A3C4',
-      'En proceso': '#F4A261',
-      'Resuelto': '#24A86B'
+      'Pendiente': '#2563EB',
+      'En proceso': '#F59E0B',
+      'Resuelto': '#16A34A'
     };
-    const estadoGradients = labels.map(l => {
-      const c = estadoColors[l] || '#24A86B';
+    const estadoPalette = ['#E4572E', '#7C3AED', '#0891B2', '#DB2777'];
+    const estadoGradients = labels.map((label, index) => {
+      const c = estadoColors[label] || estadoPalette[index % estadoPalette.length];
       const gr = gEstado.createRadialGradient(0, 0, 0, 0, 0, 120);
       gr.addColorStop(0, c + 'CC');
       gr.addColorStop(1, c);
@@ -260,14 +262,17 @@
     const data = Object.values(sectorData);
 
     const sectorColors = [
-      { dark: '#0D5A3A', light: '#2EA85D' },
-      { dark: '#0D4A6B', light: '#2A9FD8' },
-      { dark: '#166B4A', light: '#34C759' },
-      { dark: '#0B4D2E', light: '#20BF55' },
-      { dark: '#145E3D', light: '#30D158' }
+      { dark: '#0F766E', light: '#2DD4BF' },
+      { dark: '#1D4ED8', light: '#60A5FA' },
+      { dark: '#B45309', light: '#FBBF24' },
+      { dark: '#C2410C', light: '#FB7185' },
+      { dark: '#6D28D9', light: '#A78BFA' },
+      { dark: '#15803D', light: '#4ADE80' },
+      { dark: '#BE185D', light: '#F472B6' }
     ];
 
-    const sectorGradients = sectorColors.slice(0, labels.length).map(({ dark, light }) => {
+    const sectorGradients = labels.map((_, index) => {
+      const { dark, light } = sectorColors[index % sectorColors.length];
       const gr = gSector.createLinearGradient(0, 0, 250, 0);
       gr.addColorStop(0, dark);
       gr.addColorStop(1, light);
@@ -330,12 +335,13 @@
 
     const prioridadColors = {
       'Crítica': '#DC2626',
-      'Alta': '#E86B58',
-      'Media': '#F4A261',
-      'Baja': '#24A86B'
+      'Alta': '#EA580C',
+      'Media': '#F59E0B',
+      'Baja': '#16A34A'
     };
-    const prioridadGradients = labels.map(l => {
-      const c = prioridadColors[l] || '#24A86B';
+    const prioridadPalette = ['#2563EB', '#7C3AED', '#0891B2', '#DB2777'];
+    const prioridadGradients = labels.map((label, index) => {
+      const c = prioridadColors[label] || prioridadPalette[index % prioridadPalette.length];
       const gr = gPrioridad.createRadialGradient(0, 0, 0, 0, 0, 100);
       gr.addColorStop(0, c + 'CC');
       gr.addColorStop(1, c);

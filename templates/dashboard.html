@@ -2,30 +2,29 @@
 {% block title %}Dashboard Principal{% endblock %}
 {% block content %}
 <div class="dashboard-container">
-  <!-- KPI Cards Row -->
-  <div class="kpi-row">
-    <div class="kpi-card usuarios">
+  <div class="kpi-row metric-grid" data-cartilla-page data-cartilla-label="Indicadores principales">
+    <div class="kpi-card usuarios metric-card">
       <div class="kpi-border"></div>
       <div class="kpi-content">
         <small class="kpi-label">USUARIOS</small>
         <h4 class="kpi-value fw-bold mb-0">{{ kpis.usuarios|default(1254) }}</h4>
       </div>
     </div>
-    <div class="kpi-card servicios">
+    <div class="kpi-card servicios metric-card">
       <div class="kpi-border"></div>
       <div class="kpi-content">
         <small class="kpi-label">SERVICIOS ACTIVOS</small>
         <h4 class="kpi-value fw-bold mb-0">{{ kpis.servicios|default(412) }}</h4>
       </div>
     </div>
-    <div class="kpi-card recaudo">
+    <div class="kpi-card recaudo metric-card">
       <div class="kpi-border"></div>
       <div class="kpi-content">
         <small class="kpi-label">RECAUDO JULIO</small>
         <h4 class="kpi-value fw-bold mb-0">${{ (kpis.recaudo|default(12500000)/1000000)|round(1) }}M</h4>
       </div>
     </div>
-    <div class="kpi-card pqrs">
+    <div class="kpi-card pqrs metric-card">
       <div class="kpi-border"></div>
       <div class="kpi-content">
         <small class="kpi-label">PQRS PENDIENTES</small>
@@ -37,7 +36,7 @@
   <!-- Charts & Activity Row -->
   <div class="dashboard-row">
     <!-- Left: Radial Chart (60%) -->
-    <div class="chart-section">
+    <div class="chart-section" data-cartilla-page data-cartilla-label="Estado de instalaciones">
       <div class="chart-card">
         <h5 class="section-title">Estado de Instalaciones</h5>
         <div class="chart-wrapper">
@@ -64,7 +63,7 @@
     </div>
 
     <!-- Right: Recent Activity Panel (40%) -->
-    <div class="activity-section">
+    <div class="activity-section" data-cartilla-page data-cartilla-label="Actividad reciente">
       <div class="section-card">
         <h5 class="section-title">Actividad Reciente</h5>
         <div class="activity-list">
@@ -84,7 +83,7 @@
 
   <!-- Second Row: Bar Chart - Ventas Mensuales -->
   <div class="dashboard-row">
-    <div class="chart-section" style="grid-column: 1 / -1;">
+    <div class="chart-section" data-cartilla-page data-cartilla-label="Ventas de instalación" style="grid-column: 1 / -1;">
       <div class="chart-card">
         <h5 class="section-title">Ventas de Instalación - Últimos 7 Meses</h5>
         <div class="chart-wrapper">
@@ -245,13 +244,13 @@
     const gBar = ctxBar.getContext('2d');
 
     const barColors = [
-      { dark: '#0D5A7A', light: '#2EA8D8' },
-      { dark: '#0F5D3A', light: '#28A745' },
-      { dark: '#166B4A', light: '#34C759' },
-      { dark: '#0B4D2E', light: '#20BF55' },
-      { dark: '#145E3D', light: '#30D158' },
-      { dark: '#0E6A42', light: '#2CC665' },
-      { dark: '#127351', light: '#3AE06B' }
+      { dark: '#0F766E', light: '#2DD4BF' },
+      { dark: '#1D4ED8', light: '#60A5FA' },
+      { dark: '#B45309', light: '#FBBF24' },
+      { dark: '#C2410C', light: '#FB7185' },
+      { dark: '#6D28D9', light: '#A78BFA' },
+      { dark: '#15803D', light: '#4ADE80' },
+      { dark: '#BE185D', light: '#F472B6' }
     ];
 
     const barGradients = barColors.map(({ dark, light }) => {
